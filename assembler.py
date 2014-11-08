@@ -20,8 +20,21 @@ def parse(lines):
                       {
                       'ADD': 'B0',
                       'SUB': 'B1',
-                      'MUL': 'B2'
+                      'MUL': 'B2',
+                      'DIV': 'B3',
+                      'MOD': 'B6',
                       }
+              'JMP': 'C0',
+              'JZ':  'C1',
+              'JNZ': 'C2',
+              'JS':  'C3',
+              'JNS': 'C4',
+              'JO':  'C5',
+              'JNO': 'C6',
+              'MOV': 'D0',
+              'CMP': 'DA',
+              'PUSH':'E0',
+              'POP': 'E1'
             }
 
     for line in lines:

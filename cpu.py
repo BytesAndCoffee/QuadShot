@@ -1,5 +1,6 @@
 # pylint: disable:E501
 from ram import RAM
+import assembler
 from operator import add, sub
 
 
@@ -19,13 +20,6 @@ class CPU:
                        'OP': sub}
                       }
 
-    def tokenize(self, file):
-        for line in file:
-            line = line.split()
-            op, args = line[0], line[1].split(',')
-            
-
     def fetch(self, loc):
         op = self.ram.get(loc)
         reg = [self.ram.get(loc + x) for x in range(self.table[op]['ARG'])]
-        

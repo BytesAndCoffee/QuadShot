@@ -23,5 +23,5 @@ def parse(lines):
                       'MUL': 'B2'
                       }
             }
-
+ 
     for line in lines:

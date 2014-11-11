@@ -72,8 +72,11 @@ def parse(lines):
                     args[0] = registers[args[0]]
                     args[1] = args[1][1:-1]
                 elif args[0][0] == '[' and args[0][-1] == ']':
+                    print(args)
                     args[1] = registers[args[1]]
                     args[0] = args[0][1:-1]
+                else:
+                    args[0] = registers[args[0]]
         yield op, args
 
 
@@ -113,14 +116,5 @@ def load(program):
     return memory
 
 if __name__ == '__main__':
-    file = [
-        'JMP RESET',
-        'RESET:',
-        'MOV AL, 1',
-        'LOOP:',
-        'INC AL',
-        'CMP AL, 5',
-        'JNS RESET',
-        'JMP LOOP',
-        'END']
-    load(file).show()
+    with open('C:/Users/yazdmich230/Desktop/SMS Simulator v50/BUBBLE2.asm') as file:
+        load(file).show()

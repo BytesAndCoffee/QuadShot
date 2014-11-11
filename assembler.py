@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import ram
 
 jumps = {'JMP': 'C0',
@@ -20,6 +19,7 @@ def tokenize(lines):
             break
         line = line.split()
         op, args = line[0], line[1].split(',')
+        print('Input assembly code: ', op, *args)
         yield op, args
 
 
@@ -71,12 +71,16 @@ def parse(lines):
                 if args[1][0] == '[' and args[1][-1] == ']':
                     args[0] = registers[args[0]]
                     args[1] = args[1][1:-1]
+                    if args[1] in registers:
+                        args[1] = registers[args[1]]
                 elif args[0][0] == '[' and args[0][-1] == ']':
-                    print(args)
                     args[1] = registers[args[1]]
                     args[0] = args[0][1:-1]
+                    if args[0] in registers:
+                        args[0] = registers[args[0]]
                 else:
                     args[0] = registers[args[0]]
+        print('Generated machine code: ', op, *args)
         yield op, args
 
 
@@ -93,6 +97,13 @@ def tohex(val):
     return str(hex((val) & 0xFF))[2:]
 
 
+def twos_comp(val, bits):
+    """compute the 2's compliment of int value val"""
+    if((val & (1 << (bits - 1))) != 0):
+        val = val - (1 << bits)
+    return val
+
+
 def find_jumps(program):
     matches = {}
     l = program[:]
@@ -100,17 +111,18 @@ def find_jumps(program):
         if item.endswith(':'):
             matches[item[:-1]] = l.index(item)
             l.remove(item)
-    return l, matches
+    for i in range(len(l)):
+        if l[i] in jumps.values():
+            if l[i + 1] in matches.keys():
+                print('Jump to', l[i + 1], end='')
+                l[i + 1] = tohex(matches[l[i + 1]] - i)
+                print(' =', twos_comp(int(l[i + 1], 16), 8))
+    return l
 
 
 def load(program):
     memory = ram.RAM()
-    program = list(flatten(parse(tokenize(program))))
-    program, jump_values = find_jumps(program)
-    for i in range(len(program)):
-        if program[i] in jumps.values():
-            if program[i + 1] in jump_values.keys():
-                program[i + 1] = tohex(jump_values[program[i + 1]] - i)
+    program = find_jumps(list(flatten(parse(tokenize(program)))))
     for i in range(len(program)):
         memory.put(hex(i), program[i])
     return memory

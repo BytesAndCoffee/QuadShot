@@ -7,6 +7,22 @@ jumps = {'JMP': 'C0',
          'JNS': 'C4',
          'JO': 'C5',
          'JNO': 'C6'}
+table = {
+    'arithmetic': {
+        'ADD': ['A0', 'B0'],
+        'SUB': ['A1', 'B1'],
+        'MUL': ['A2', 'B2'],
+        'DIV': ['A3', 'B3'],
+        'MOD': ['A6', 'B6']},
+    'INC': 'A4',
+    'DEC': 'A5',
+    'jumps': jumps,
+    'MOV': ['D0', 'D1', 'D2', 'D3', 'D4'],
+    'CMP': ['DC', 'DA', 'DB'],
+    'PUSH': 'E0',
+    'POP': 'E1'
+}
+registers = {'AL': '00', 'BL': '01', 'CL': '02', 'DL': '03'}
 
 
 def tokenize(lines):
@@ -23,23 +39,23 @@ def tokenize(lines):
         yield op, args
 
 
+def mov(op, args):
+    if args[0] in registers:
+        if args[1][1:-1]:
+            if args[1][1:-1] in registers:
+                return 'D3', [registers[args[0]], registers[args[1][1:-1]]]
+            else:
+                return 'D1', [registers[args[0]], args[1][1:-1]]
+        else:
+            return 'D0', [registers[args[0]], args[1]]
+    else:
+        if args[0][1:-1] in registers:
+            return 'D4', [registers[args[0][1:-1]], registers[args[1]]]
+        else:
+            return 'D2', [args[0][1:-1], registers[args[1]]]
+
+
 def parse(lines):
-    table = {
-        'arithmetic': {
-            'ADD': ['A0', 'B0'],
-            'SUB': ['A1', 'B1'],
-            'MUL': ['A2', 'B2'],
-            'DIV': ['A3', 'B3'],
-            'MOD': ['A6', 'B6']},
-        'INC': 'A4',
-        'DEC': 'A5',
-        'jumps': jumps,
-        'MOV': 'D0',
-        'CMP': ['DC', 'DA', 'DB'],
-        'PUSH': 'E0',
-        'POP': 'E1'
-    }
-    registers = {'AL': '00', 'BL': '01', 'CL': '02', 'DL': '03'}
     for line in lines:
         op, args = line
         if args:
@@ -67,19 +83,7 @@ def parse(lines):
                 op = table[op]
                 args = [registers[args[0]]]
             elif op == 'MOV':
-                op = table[op]
-                if args[1][0] == '[' and args[1][-1] == ']':
-                    args[0] = registers[args[0]]
-                    args[1] = args[1][1:-1]
-                    if args[1] in registers:
-                        args[1] = registers[args[1]]
-                elif args[0][0] == '[' and args[0][-1] == ']':
-                    args[1] = registers[args[1]]
-                    args[0] = args[0][1:-1]
-                    if args[0] in registers:
-                        args[0] = registers[args[0]]
-                else:
-                    args[0] = registers[args[0]]
+                op, args = mov(op, args)
         print('Generated machine code: ', op, *args)
         yield op, args
 
@@ -123,6 +127,7 @@ def find_jumps(program):
 def load(program):
     memory = ram.RAM()
     program = find_jumps(list(flatten(parse(tokenize(program)))))
+    print('DB '+' DB '.join(program))
     for i in range(len(program)):
         memory.put(hex(i), program[i])
     return memory

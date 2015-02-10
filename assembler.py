@@ -39,7 +39,7 @@ def tokenize(lines):
         yield op, args
 
 
-def mov(args):
+def mov(op, args):
     if args[0] in registers:
         if args[1][1:-1]:
             if args[1][1:-1] in registers:
@@ -103,7 +103,7 @@ def tohex(val):
 
 def twos_comp(val, bits):
     """compute the 2's compliment of int value val"""
-    if(val & (1 << (bits - 1)) != 0):
+    if val & (1 << (bits - 1)) != 0:
         val -= (1 << bits)
     return val
 

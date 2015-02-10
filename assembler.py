@@ -98,22 +98,13 @@ def flatten(foo):
 
 
 def tohex(val):
-<<<<<<< HEAD
     return str(hex(val & 0xFF))[2:]
-=======
-    return str(hex((val) & 0xFF))[2:]
->>>>>>> origin/master
 
 
 def twos_comp(val, bits):
     """compute the 2's compliment of int value val"""
-<<<<<<< HEAD
     if val & (1 << (bits - 1)) != 0:
         val -= (1 << bits)
-=======
-    if((val & (1 << (bits - 1))) != 0):
-        val = val - (1 << bits)
->>>>>>> origin/master
     return val
 
 
@@ -142,9 +133,5 @@ def load(program):
     return memory
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     with open('BUBBLE2.asm ') as file:
-=======
-    with open('C:/Users/yazdmich230/Desktop/SMS Simulator v50/BUBBLE2.asm') as file:
->>>>>>> origin/master
         load(file).show()

@@ -82,3 +82,4 @@ class CPU:
         lookup = self.table[op]
         forward, func = lookup.values()
         # args = [self.fetch(loc + i) for i in range()
+

@@ -82,7 +82,7 @@ class CPU:
         op = self.ram.get(loc)
         lookup = self.table[op]
         forward, func = lookup.values()
-        args = [self.ram.get(loc + i + 1) for i in range(forward)]  # TypeError: Can't convert 'int' object to str implicitly
+        args = [self.ram.get(int(loc, 16) + i + 1) for i in range(forward)]  # TypeError: 'method' object cannot be interpreted as an integer
         return func, args
 
 if __name__ == '__main__':
@@ -90,3 +90,4 @@ if __name__ == '__main__':
     with open('BUBBLE2.asm') as file:
         test.ram = load(file)
         test.ram.show()
+        test.fetch('00')

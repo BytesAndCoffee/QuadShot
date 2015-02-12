@@ -54,22 +54,22 @@ class CPU:
         self.IP += twos_comp(arg, 8)
 
     def jz(self, arg):
-        pass
+        self.IP += twos_comp(arg, 8)
 
     def jnz(self, arg):
-        pass
+        self.IP += twos_comp(arg, 8)
 
     def js(self, arg):
-        pass
+        self.IP += twos_comp(arg, 8)
 
     def jns(self, arg):
-        pass
+        self.IP += twos_comp(arg, 8)
 
     def jo(self, arg):
-        pass
+        self.IP += twos_comp(arg, 8)
 
     def jno(self, arg):
-        pass
+        self.IP += twos_comp(arg, 8)
 
     def mov(self, *args):
         pass

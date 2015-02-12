@@ -3,18 +3,11 @@ class RAM:
     def __init__(self):
         self.image = [['00' for _ in range(16)] for _ in range(16)]
 
-    def get(self, location):
-        """
-        :param location: str
-        """
+    def get(self, location: str) -> str:
         x, y = divmod(int(location, 16), 16)
         return self.image[x][y]
 
-    def put(self, location, data):
-        """
-        :param location: str
-        :param data: str
-        """
+    def put(self, location: str, data: str):
         x, y = divmod(int(location, 16), 16)
         self.image[x][y] = data.zfill(2).upper()
 

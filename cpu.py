@@ -1,5 +1,5 @@
 from ram import RAM
-from assembler import load
+import assembler
 from operator import add, sub, mul, floordiv, mod
 
 inc = lambda x: x + 1
@@ -93,10 +93,11 @@ class CPU:
             self.SR[6] = 1
 
     def push(self, arg):
-        self.ram.put(self.SP,)
+        self.ram.put(assembler.tohex(self.SP), arg)
+        dec(self.SP)
 
-    def pop(self, arg):
-        pass
+    def pop(self) -> str:
+        return self.ram.get(assembler.tohex(self.SP))
 
     def fetch(self, loc):
         op = self.ram.get(loc)
@@ -105,8 +106,8 @@ class CPU:
         args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]
         return func, args, forward
 
-    def load(self, file):
-        self.ram.image = load(open(file)).image
+    def load(self, code):
+        self.ram.image = assembler.load(open(code)).image
 
     def run(self):
         """

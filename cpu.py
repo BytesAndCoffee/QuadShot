@@ -92,7 +92,6 @@ class CPU:
         elif op == 'D3':
             pass
 
-
     def cmp(self, *args):
         res = cmp(*args)
         if res == -1:

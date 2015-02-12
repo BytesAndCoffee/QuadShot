@@ -93,7 +93,7 @@ class CPU:
             self.SR[6] = 1
 
     def push(self, arg):
-        pass
+        self.ram.put(self.SP,)
 
     def pop(self, arg):
         pass

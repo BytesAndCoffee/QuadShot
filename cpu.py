@@ -12,6 +12,8 @@ def twos_comp(val, bits):
         val -= (1 << bits)
     return val
 
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 class CPU:
     def __init__(self):
@@ -77,11 +79,15 @@ class CPU:
         if not self.SR[5]:
             self.IP += twos_comp(arg, 8)
 
-    def mov(self, *args):
+    def mov(self, op, *args):
         pass
 
     def cmp(self, *args):
-        pass
+        res = cmp(*args)
+        if res == -1:
+            self.SR[4] = 1
+        elif not res:
+            self.SR[6] = 1
 
     def fetch(self, loc):
         op = self.ram.get(loc)

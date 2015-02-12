@@ -56,22 +56,28 @@ class CPU:
         self.IP += twos_comp(arg, 8)
 
     def jz(self, arg):
-        self.IP += twos_comp(arg, 8)
+        if self.SR[6]:
+            self.IP += twos_comp(arg, 8)
 
     def jnz(self, arg):
-        self.IP += twos_comp(arg, 8)
+        if !self.SR[6]:
+            self.IP += twos_comp(arg, 8)
 
     def js(self, arg):
-        self.IP += twos_comp(arg, 8)
+        if self.SR[4]:
+            self.IP += twos_comp(arg, 8)
 
     def jns(self, arg):
-        self.IP += twos_comp(arg, 8)
+        if !self.SR[4]:
+            self.IP += twos_comp(arg, 8)
 
     def jo(self, arg):
-        self.IP += twos_comp(arg, 8)
+        if self.SR[5]:
+            self.IP += twos_comp(arg, 8)
 
     def jno(self, arg):
-        self.IP += twos_comp(arg, 8)
+        if !self.SR[5]:
+            self.IP += twos_comp(arg, 8)
 
     def mov(self, *args):
         pass
@@ -92,5 +98,4 @@ if __name__ == '__main__':
     with open('BUBBLE2.asm') as file:
         test.ram = load(file)
         test.ram.show()
-        test.fetch('00')
-        # exits with no output after RAM image
+        print(test.fetch('00'))

@@ -84,10 +84,6 @@ class CPU:
         pass
 
     def fetch(self, loc):
-        """
-
-        :rtype : method, list
-        """
         op = self.ram.get(loc)
         lookup = self.table[op]
         func, forward = lookup['op'], lookup['len']

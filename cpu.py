@@ -2,7 +2,6 @@
 from ram import RAM
 from assembler import load
 from operator import add, sub, mul, floordiv, mod
-from math import floor
 
 inc = lambda x: x + 1
 dec = lambda x: x - 1

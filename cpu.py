@@ -92,6 +92,12 @@ class CPU:
         elif not res:
             self.SR[6] = 1
 
+    def push(self, arg):
+        pass
+
+    def pop(self, arg):
+        pass
+
     def fetch(self, loc):
         op = self.ram.get(loc)
         lookup = self.table[op]

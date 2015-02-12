@@ -81,8 +81,8 @@ class CPU:
     def fetch(self, loc):
         op = self.ram.get(loc)
         lookup = self.table[op]
-        forward, func = lookup.values()
-        args = [self.ram.get(int(loc, 16) + i + 1) for i in range(forward)]  # TypeError: 'method' object cannot be interpreted as an integer
+        func, forward = lookup['op'], lookup['len']
+        args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]  # TypeError: 'method' object cannot be interpreted as an integer
         return func, args
 
 if __name__ == '__main__':

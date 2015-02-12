@@ -39,7 +39,7 @@ def tokenize(lines):
         yield op, args
 
 
-def mov(op, args):
+def mov(args):
     if args[0] in registers:
         if args[1][1:-1]:
             if args[1][1:-1] in registers:
@@ -83,7 +83,7 @@ def parse(lines):
                 op = table[op]
                 args = [registers[args[0]]]
             elif op == 'MOV':
-                op, args = mov(op, args)
+                op, args = mov(args)
         print('Generated machine code: ', op, *args)
         yield op, args
 

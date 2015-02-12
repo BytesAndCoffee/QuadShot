@@ -12,8 +12,10 @@ def twos_comp(val, bits):
         val -= (1 << bits)
     return val
 
+
 def cmp(a, b):
     return (a > b) - (a < b)
+
 
 class CPU:
     def __init__(self):

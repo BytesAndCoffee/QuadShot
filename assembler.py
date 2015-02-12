@@ -133,5 +133,5 @@ def load(program):
     return memory
 
 if __name__ == '__main__':
-    with open('BUBBLE2.asm ') as file:
+    with open('BUBBLE2.asm') as file:
         load(file).show()

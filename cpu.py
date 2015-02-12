@@ -1,6 +1,8 @@
 # pylint: disable:E501
 from ram import RAM
+from assembler import load
 from operator import add, sub, mul, floordiv, mod
+from math import floor
 inc = lambda x: x + 1
 dec = lambda x: x - 1
 
@@ -13,7 +15,6 @@ def twos_comp(val, bits):
 
 
 class CPU:
-
     def __init__(self):
         self.registers = {'00': 0, '01': 0, '02': 0, '03': 0}
         self.IP = 0
@@ -81,5 +82,11 @@ class CPU:
         op = self.ram.get(loc)
         lookup = self.table[op]
         forward, func = lookup.values()
-        # args = [self.fetch(loc + i) for i in range()
+        args = [self.ram.get(loc + i + 1) for i in range(forward)]
+        return func, args
 
+if __name__ == '__main__':
+    test = CPU()
+    with open('BUBBLE2.asm') as file:
+        test.ram = load(file)
+        test.ram.show()

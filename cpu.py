@@ -60,7 +60,7 @@ class CPU:
             self.IP += twos_comp(arg, 8)
 
     def jnz(self, arg):
-        if !self.SR[6]:
+        if  not self.SR[6]:
             self.IP += twos_comp(arg, 8)
 
     def js(self, arg):
@@ -68,7 +68,7 @@ class CPU:
             self.IP += twos_comp(arg, 8)
 
     def jns(self, arg):
-        if !self.SR[4]:
+        if not self.SR[4]:
             self.IP += twos_comp(arg, 8)
 
     def jo(self, arg):
@@ -76,7 +76,7 @@ class CPU:
             self.IP += twos_comp(arg, 8)
 
     def jno(self, arg):
-        if !self.SR[5]:
+        if not self.SR[5]:
             self.IP += twos_comp(arg, 8)
 
     def mov(self, *args):

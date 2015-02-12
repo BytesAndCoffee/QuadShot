@@ -82,8 +82,16 @@ class CPU:
         if not self.SR[5]:
             self.IP += twos_comp(arg, 8)
 
-    def mov(self, op, *args):
-        pass
+    def mov(self, op: str, *args: list):
+        if op == 'D0':
+            pass
+        elif op == 'D1':
+            pass
+        elif op == 'D2':
+            pass
+        elif op == 'D3':
+            pass
+
 
     def cmp(self, *args):
         res = cmp(*args)
@@ -104,7 +112,7 @@ class CPU:
         lookup = self.table[op]
         func, forward = lookup['op'], lookup['len']
         args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]
-        return func, args, forward
+        return func, args, forward, op
 
     def load(self, code):
         self.ram.image = assembler.load(open(code)).image
@@ -118,7 +126,7 @@ class CPU:
         self.SP = int('0xBF', 16)
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         while True:
-            func, args, forward = self.fetch(hex(self.IP))
+            func, args, forward, op = self.fetch(hex(self.IP))
             print(func, args)
             if func == 'HALT':
                 break

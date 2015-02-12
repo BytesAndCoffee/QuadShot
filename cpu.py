@@ -3,6 +3,7 @@ from ram import RAM
 from assembler import load
 from operator import add, sub, mul, floordiv, mod
 from math import floor
+
 inc = lambda x: x + 1
 dec = lambda x: x - 1
 
@@ -82,8 +83,9 @@ class CPU:
         op = self.ram.get(loc)
         lookup = self.table[op]
         func, forward = lookup['op'], lookup['len']
-        args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]  # TypeError: 'method' object cannot be interpreted as an integer
+        args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]
         return func, args
+
 
 if __name__ == '__main__':
     test = CPU()
@@ -91,3 +93,4 @@ if __name__ == '__main__':
         test.ram = load(file)
         test.ram.show()
         test.fetch('00')
+        # exits with no output after RAM image

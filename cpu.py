@@ -19,7 +19,7 @@ def cmp(a, b):
 
 class CPU:
     def __init__(self):
-        self.registers = {'00': 0, '01': 0, '02': 0, '03': 0}
+        self.registers = {'00': '00', '01': '00', '02': '00', '03': '00'}
         self.IP = 0
         self.SP = int('0xBF', 16)
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -84,13 +84,13 @@ class CPU:
 
     def mov(self, op: str, *args: list):
         if op == 'D0':
-            pass
+            self.registers[args[0]] = args[1]
         elif op == 'D1':
-            pass
+            self.registers[args[0]] = self.ram.get(args[1])
         elif op == 'D2':
-            pass
+            self.ram.put(args[0], args[1])
         elif op == 'D3':
-            pass
+            self.ram.put(self.ram.get(self.registers[args[0]]), self.registers[args[1]])
 
     def cmp(self, *args):
         res = cmp(*args)

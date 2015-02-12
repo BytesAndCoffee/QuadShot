@@ -52,7 +52,8 @@ class CPU:
                       'DB': {'len': 2, 'op': self.cmp},
                       'DC': {'len': 2, 'op': self.cmp},
                       'E0': {'len': 1, 'op': 'PUSH'},
-                      'E1': {'len': 1, 'op': 'POP'}}
+                      'E1': {'len': 1, 'op': 'POP'},
+                      '00': {'len': 0, 'op': 'HALT'}}
 
     def jmp(self, arg):
         self.IP += twos_comp(arg, 8)
@@ -96,12 +97,28 @@ class CPU:
         lookup = self.table[op]
         func, forward = lookup['op'], lookup['len']
         args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]
-        return func, args
+        return func, args, forward
 
+    def load(self, file):
+        self.ram.image = load(open(file)).image
+
+    def run(self):
+        """
+        So far this is a debug method to list what the CPU sees in the code
+        """
+        self.registers = {'00': 0, '01': 0, '02': 0, '03': 0}
+        self.IP = 0
+        self.SP = int('0xBF', 16)
+        self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
+        while True:
+            func, args, forward = self.fetch(hex(self.IP))
+            print(func, args)
+            if func == 'HALT':
+                break
+            self.IP += forward + 1
 
 if __name__ == '__main__':
     test = CPU()
     with open('BUBBLE2.asm') as file:
-        test.ram = load(file)
-        test.ram.show()
-        print(test.fetch('00'))
+        test.load('BUBBLE2.asm')
+        test.run()

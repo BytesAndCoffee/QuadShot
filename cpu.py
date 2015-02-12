@@ -1,4 +1,3 @@
-# pylint: disable:E501
 from ram import RAM
 from assembler import load
 from operator import add, sub, mul, floordiv, mod
@@ -59,7 +58,7 @@ class CPU:
             self.IP += twos_comp(arg, 8)
 
     def jnz(self, arg):
-        if  not self.SR[6]:
+        if not self.SR[6]:
             self.IP += twos_comp(arg, 8)
 
     def js(self, arg):
@@ -85,6 +84,10 @@ class CPU:
         pass
 
     def fetch(self, loc):
+        """
+
+        :rtype : method, list
+        """
         op = self.ram.get(loc)
         lookup = self.table[op]
         func, forward = lookup['op'], lookup['len']

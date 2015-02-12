@@ -82,7 +82,7 @@ class CPU:
         op = self.ram.get(loc)
         lookup = self.table[op]
         forward, func = lookup.values()
-        args = [self.ram.get(loc + i + 1) for i in range(forward)]
+        args = [self.ram.get(loc + i + 1) for i in range(forward)]  # TypeError: Can't convert 'int' object to str implicitly
         return func, args
 
 if __name__ == '__main__':

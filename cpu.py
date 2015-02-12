@@ -92,7 +92,13 @@ class CPU:
         elif op == 'D3':
             self.ram.put(self.ram.get(self.registers[args[0]]), self.registers[args[1]])
 
-    def cmp(self, *args):
+    def cmp(self, op, *args):
+        if op == 'DA':
+            args = [self.registers[arg] for arg in args]
+        elif op == 'DB':
+            args = [self.registers[args[0]], args[1]]
+        elif op == 'DC':
+            args = [self.registers[args[0]], self.ram.get(args[1])]
         res = cmp(*args)
         if res == -1:
             self.SR[4] = 1

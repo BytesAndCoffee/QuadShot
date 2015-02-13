@@ -52,7 +52,7 @@ class CPU:
                       'DB': {'len': 2, 'op': self.cmp},
                       'DC': {'len': 2, 'op': self.cmp},
                       'E0': {'len': 1, 'op': self.push},
-                      'E1': {'len': 1, 'op': self.pop},
+                      'E1': {'len': 0, 'op': self.pop},
                       '00': {'len': 0, 'op': 'HALT'}}
 
     def jmp(self, arg):
@@ -135,7 +135,7 @@ class CPU:
             print(func, args)
             if func == 'HALT':
                 break
-
+            elif func = 
             self.IP += forward + 1
 
 if __name__ == '__main__':

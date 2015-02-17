@@ -52,37 +52,37 @@ class CPU:
                       'DB': {'len': 2, 'op': self.cmp},
                       'DC': {'len': 2, 'op': self.cmp},
                       'E0': {'len': 1, 'op': self.push},
-                      'E1': {'len': 0, 'op': self.pop},
+                      'E1': {'len': 1, 'op': self.pop},
                       '00': {'len': 0, 'op': 'HALT'}}
 
     def jmp(self, arg):
-        self.IP += twos_comp(arg, 8)
+        self.IP += twos_comp(int(arg[0], 16), 8) + 1
 
     def jz(self, arg):
         if self.SR[6]:
-            self.IP += twos_comp(arg, 8)
+            self.IP += twos_comp(int(arg[0], 16), 8)
 
     def jnz(self, arg):
         if not self.SR[6]:
-            self.IP += twos_comp(arg, 8)
+            self.IP += twos_comp(int(arg[0], 16), 8)
 
     def js(self, arg):
         if self.SR[4]:
-            self.IP += twos_comp(arg, 8)
+            self.IP += twos_comp(int(arg[0], 16), 8)
 
     def jns(self, arg):
         if not self.SR[4]:
-            self.IP += twos_comp(arg, 8)
+            self.IP += twos_comp(int(arg[0], 16), 8)
 
     def jo(self, arg):
         if self.SR[5]:
-            self.IP += twos_comp(arg, 8)
+            self.IP += twos_comp(int(arg[0], 16), 8)
 
     def jno(self, arg):
         if not self.SR[5]:
-            self.IP += twos_comp(arg, 8)
+            self.IP += twos_comp(int(arg[0], 16), 8)
 
-    def mov(self, op: str, *args: list):
+    def mov(self, op: str, args: list):
         if op == 'D0':
             self.registers[args[0]] = args[1]
         elif op == 'D1':
@@ -92,7 +92,7 @@ class CPU:
         elif op == 'D3':
             self.ram.put(self.ram.get(self.registers[args[0]]), self.registers[args[1]])
 
-    def cmp(self, op, *args):
+    def cmp(self, op: str, args: list):
         if op == 'DA':
             args = [self.registers[arg] for arg in args]
         elif op == 'DB':
@@ -109,8 +109,9 @@ class CPU:
         self.ram.put(assembler.tohex(self.SP), arg)
         dec(self.SP)
 
-    def pop(self) -> str:
-        return self.ram.get(assembler.tohex(self.SP))
+    def pop(self, arg):
+        self.registers[arg] = self.ram.get(assembler.tohex(self.SP))
+        inc(self.SP)
 
     def fetch(self, loc):
         op = self.ram.get(loc)
@@ -132,22 +133,28 @@ class CPU:
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         while True:
             func, args, forward, op = self.fetch(hex(self.IP))
-            print(func, args)
+            self.ram.show()
             if func == 'HALT':
                 break
             elif op[0] == 'A':
                 self.registers[args[0]] = assembler.tohex(func(*[int(self.registers[register], 16) for register in args]))
             elif op[0] == 'B':
                 self.registers[args[0]] = assembler.tohex(func(int(self.registers[args[0]], 16), int(args[1], 16)))
+            elif op[0] == 'D':
+                func(op, args)
+            else:
+                func(args)
             self.IP += forward + 1
 
 
 if __name__ == '__main__':
     test = CPU()
-    # with open('BUBBLE2.asm') as file:
-    #     test.load('BUBBLE2.asm')
-    #     test.run()
-    code = ['ADD AL,01', 'INC AL', 'END']
-    test.load(code)
-    test.run()
-    test.ram.show()
+    with open('BUBBLE2.asm') as file:
+        test.load(file)
+        test.run()
+        test.ram.show()
+    # code = ['ADD AL,01', 'INC AL', 'END']
+    # test.load(code)
+    # test.run()
+    # test.ram.show()
+    # print(test.registers)

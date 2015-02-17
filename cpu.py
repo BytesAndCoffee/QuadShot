@@ -120,13 +120,13 @@ class CPU:
         return func, args, forward, op
 
     def load(self, code):
-        self.ram.image = assembler.load(open(code)).image
+        self.ram.image = assembler.load(code).image
 
     def run(self):
         """
         So far this is a debug method to list what the CPU sees in the code
         """
-        self.registers = {'00': 0, '01': 0, '02': 0, '03': 0}
+        self.registers = {'00': '00', '01': '00', '02': '00', '03': '00'}
         self.IP = 0
         self.SP = int('0xBF', 16)
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -136,15 +136,18 @@ class CPU:
             if func == 'HALT':
                 break
             elif op[0] == 'A':
-                self.registers[args[0]] = self.table[op]['op'](
-                    *[int(self.registers[register], 16) for register in args])
-            elif op[0] == 'B'
-                self.registers[args[0]] = self.table[op]['op'](int(self.registers[args[0]], 16), int(args[1], 16))
+                self.registers[args[0]] = assembler.tohex(func(*[int(self.registers[register], 16) for register in args]))
+            elif op[0] == 'B':
+                self.registers[args[0]] = assembler.tohex(func(int(self.registers[args[0]], 16), int(args[1], 16)))
             self.IP += forward + 1
 
 
 if __name__ == '__main__':
     test = CPU()
-    with open('BUBBLE2.asm') as file:
-        test.load('BUBBLE2.asm')
-        test.run()
+    # with open('BUBBLE2.asm') as file:
+    #     test.load('BUBBLE2.asm')
+    #     test.run()
+    code = ['ADD AL,01', 'INC AL', 'END']
+    test.load(code)
+    test.run()
+    test.ram.show()

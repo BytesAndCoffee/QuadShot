@@ -133,7 +133,7 @@ class CPU:
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         while True:
             func, args, forward, op = self.fetch(hex(self.IP))
-            self.ram.show()
+            print(self.fetch(hex(self.IP)), hex(self.IP))
             if func == 'HALT':
                 break
             elif op[0] == 'A':

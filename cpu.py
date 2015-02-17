@@ -135,7 +135,8 @@ class CPU:
             print(func, args)
             if func == 'HALT':
                 break
-            elif func = 
+            elif op[0] == 'A':
+                self.registers[args[0]] = self.table[op]['op'](*[self.registers[register] for register in args])
             self.IP += forward + 1
 
 if __name__ == '__main__':

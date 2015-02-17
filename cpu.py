@@ -136,8 +136,12 @@ class CPU:
             if func == 'HALT':
                 break
             elif op[0] == 'A':
-                self.registers[args[0]] = self.table[op]['op'](*[self.registers[register] for register in args])
+                self.registers[args[0]] = self.table[op]['op'](
+                    *[int(self.registers[register], 16) for register in args])
+            elif op[0] == 'B'
+                self.registers[args[0]] = self.table[op]['op'](int(self.registers[args[0]], 16), int(args[1], 16))
             self.IP += forward + 1
+
 
 if __name__ == '__main__':
     test = CPU()

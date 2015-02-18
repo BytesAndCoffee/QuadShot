@@ -126,6 +126,7 @@ def find_jumps(program):
 
 def load(program):
     memory = ram.RAM()
+    program = list(program)
     program = find_jumps(list(flatten(parse(tokenize(program)))))
     print('DB '+' DB '.join(program))
     for i in range(len(program)):

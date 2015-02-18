@@ -1,4 +1,4 @@
-from ram import RAM
+import ram
 import assembler
 from operator import add, sub, mul, floordiv, mod
 
@@ -23,7 +23,8 @@ class CPU:
         self.IP = 0
         self.SP = int('0xBF', 16)
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
-        self.ram = RAM()
+        self.jumped = 0
+        self.ram = ram.RAM()
         self.table = {'A0': {'len': 2, 'op': add},
                       'A1': {'len': 2, 'op': sub},
                       'A2': {'len': 2, 'op': mul},
@@ -56,31 +57,52 @@ class CPU:
                       '00': {'len': 0, 'op': 'HALT'}}
 
     def jmp(self, arg):
-        self.IP += twos_comp(int(arg[0], 16), 8) - 2
+        jump = twos_comp(int(arg[0], 16), 8)
+        print('Added', jump, 'to IP')
+        self.IP += jump
+        self.jumped = 1
 
     def jz(self, arg):
         if self.SR[6]:
-            self.IP += twos_comp(int(arg[0], 16), 8) + 1
+            jump = twos_comp(int(arg[0], 16), 8)
+            print('Added', jump, 'to IP')
+            self.IP += jump
+            self.jumped = 1
 
     def jnz(self, arg):
         if not self.SR[6]:
-            self.IP += twos_comp(int(arg[0], 16), 8)
+            jump = twos_comp(int(arg[0], 16), 8)
+            print('Added', jump, 'to IP')
+            self.IP += jump
+            self.jumped = 1
 
     def js(self, arg):
         if self.SR[4]:
-            self.IP += twos_comp(int(arg[0], 16), 8)
+            jump = twos_comp(int(arg[0], 16), 8)
+            print('Added', jump, 'to IP')
+            self.IP += jump
+            self.jumped = 1
 
     def jns(self, arg):
         if not self.SR[4]:
-            self.IP += twos_comp(int(arg[0], 16), 8)
+            jump = twos_comp(int(arg[0], 16), 8)
+            print('Added', jump, 'to IP')
+            self.IP += jump
+            self.jumped = 1
 
     def jo(self, arg):
         if self.SR[5]:
-            self.IP += twos_comp(int(arg[0], 16), 8)
+            jump = twos_comp(int(arg[0], 16), 8)
+            print('Added', jump, 'to IP')
+            self.IP += jump
+            self.jumped = 1
 
     def jno(self, arg):
         if not self.SR[5]:
-            self.IP += twos_comp(int(arg[0], 16), 8)
+            jump = twos_comp(int(arg[0], 16), 8)
+            print('Added', jump, 'to IP')
+            self.IP += jump
+            self.jumped = 1
 
     def mov(self, op: str, args: list):
         if op == 'D0':
@@ -88,9 +110,10 @@ class CPU:
         elif op == 'D1':
             self.registers[args[0]] = self.ram.get(args[1])
         elif op == 'D2':
-            self.ram.put(args[0], args[1])
+            self.ram.put(args[0], self.registers[args[1]])
         elif op == 'D3':
-            self.ram.put(self.ram.get(self.registers[args[0]]), self.registers[args[1]])
+            self.ram.put(self.registers[args[1]], self.ram.get(self.registers[args[0]]))
+        self.ram.show()
 
     def cmp(self, op: str, args: list):
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -133,24 +156,23 @@ class CPU:
         self.SP = int('0xBF', 16)
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         while True:
+            self.jumped = 0
             func, args, forward, op = self.fetch(hex(self.IP))
             print(func, args, forward, op, hex(self.IP))
             if func == 'HALT':
                 break
             elif op[0] == 'A':
-                self.registers[args[0]] = assembler.tohex(func(*[int(self.registers[register], 16) for register in args]))
+                self.registers[args[0]] = assembler.tohex(
+                    func(*[int(self.registers[register], 16) for register in args]))
             elif op[0] == 'B':
                 self.registers[args[0]] = assembler.tohex(func(int(self.registers[args[0]], 16), int(args[1], 16)))
             elif op[0] == 'D':
                 func(op, args)
             else:
                 func(args)
-            wait()
-            self.IP += forward + 1
-
-
-def wait():
-    w = input()
+            print(self.registers)
+            if not self.jumped:
+                self.IP += forward + 1
 
 
 if __name__ == '__main__':
@@ -159,8 +181,8 @@ if __name__ == '__main__':
         test.load(file)
         test.run()
         test.ram.show()
-    # code = ['ADD AL,01', 'INC AL', 'END']
-    # test.load(code)
-    # test.run()
-    # test.ram.show()
-    # print(test.registers)
+        # code = ['ADD AL,01', 'INC AL', 'END']
+        # test.load(code)
+        # test.run()
+        # test.ram.show()
+        # print(test.registers)

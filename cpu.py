@@ -56,11 +56,11 @@ class CPU:
                       '00': {'len': 0, 'op': 'HALT'}}
 
     def jmp(self, arg):
-        self.IP += twos_comp(int(arg[0], 16), 8) + 1
+        self.IP += twos_comp(int(arg[0], 16), 8) - 2
 
     def jz(self, arg):
         if self.SR[6]:
-            self.IP += twos_comp(int(arg[0], 16), 8)
+            self.IP += twos_comp(int(arg[0], 16), 8) + 1
 
     def jnz(self, arg):
         if not self.SR[6]:
@@ -93,6 +93,7 @@ class CPU:
             self.ram.put(self.ram.get(self.registers[args[0]]), self.registers[args[1]])
 
     def cmp(self, op: str, args: list):
+        self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         if op == 'DA':
             args = [self.registers[arg] for arg in args]
         elif op == 'DB':
@@ -102,15 +103,15 @@ class CPU:
         res = cmp(*args)
         if res == -1:
             self.SR[4] = 1
-        elif not res:
+        elif res == 1:
             self.SR[6] = 1
 
     def push(self, arg):
-        self.ram.put(assembler.tohex(self.SP), arg)
+        self.ram.put(assembler.tohex(self.SP), arg[0])
         dec(self.SP)
 
     def pop(self, arg):
-        self.registers[arg] = self.ram.get(assembler.tohex(self.SP))
+        self.registers[arg[0]] = self.ram.get(assembler.tohex(self.SP))
         inc(self.SP)
 
     def fetch(self, loc):
@@ -133,7 +134,7 @@ class CPU:
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         while True:
             func, args, forward, op = self.fetch(hex(self.IP))
-            print(self.fetch(hex(self.IP)), hex(self.IP))
+            print(func, args, forward, op, hex(self.IP))
             if func == 'HALT':
                 break
             elif op[0] == 'A':
@@ -144,7 +145,12 @@ class CPU:
                 func(op, args)
             else:
                 func(args)
+            wait()
             self.IP += forward + 1
+
+
+def wait():
+    w = input()
 
 
 if __name__ == '__main__':

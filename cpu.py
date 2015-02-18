@@ -14,7 +14,12 @@ def twos_comp(val, bits):
 
 
 def cmp(a, b):
-    return (a > b) - (a < b)
+    if a == b:
+        return 1
+    elif a > b:
+        return -1
+    elif a < b:
+        return 0
 
 
 class CPU:
@@ -112,7 +117,7 @@ class CPU:
         elif op == 'D2':
             self.ram.put(args[0], self.registers[args[1]])
         elif op == 'D3':
-            self.ram.put(self.registers[args[1]], self.ram.get(self.registers[args[0]]))
+            self.ram.put(self.registers[args[0]], self.ram.get(self.registers[args[1]]))
         self.ram.show()
 
     def cmp(self, op: str, args: list):
@@ -128,6 +133,8 @@ class CPU:
             self.SR[4] = 1
         elif res == 1:
             self.SR[6] = 1
+        elif res == 0:
+            self.SR = [0 for _ in range(8)]
 
     def push(self, arg):
         self.ram.put(assembler.tohex(self.SP), arg[0])
@@ -171,6 +178,7 @@ class CPU:
             else:
                 func(args)
             print(self.registers)
+            print(self.SR)
             if not self.jumped:
                 self.IP += forward + 1
 

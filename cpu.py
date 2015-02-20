@@ -165,9 +165,7 @@ class CPU:
         self.SR = 0
         while True:
             self.jumped = 0
-            print(assembler.tohex(self.IP))
             func, args, forward, op = self.fetch(hex(self.IP))
-            print(func, args, forward, op)
             if func == 'HALT':
                 break
             elif op[0] == 'A':
@@ -180,8 +178,6 @@ class CPU:
             else:
                 func(args)
             print(self.registers)
-            print(self.SR)
-            print(assembler.tohex(self.SP))
             if not self.jumped:
                 self.IP += forward + 1
 

@@ -1,7 +1,7 @@
 class RAM:
     """Simple RAM interface and storage object"""
     def __init__(self):
-        self.image = [['00' for _ in range(16)] for _ in range(16)]
+        self.image = [['00' for _ in range(16)] for _ in range(12)] + [['20' for _ in range(16)] for _ in range(4)]
 
     def get(self, location: str) -> str:
         x, y = divmod(int(location, 16), 16)

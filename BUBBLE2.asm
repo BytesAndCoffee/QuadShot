@@ -17,7 +17,7 @@ START:				;
 	MOV	[C5],AL		; Move AL to RAM [C5] (hardcoded for display popup)
 	MOV	AL,0		; Reset AL for program start
 MAIN:				;
-	CMP	DL,5		; Check for sorting completion (swap counter starts at 0, decrements at each comparison with a swap, increments at each comparison without a swap, value of 5 marks fully sorted with no false positives)
+	CMP	DL,05		; Check for sorting completion (swap counter starts at 0, decrements at each comparison with a swap, increments at each comparison without a swap, value of 5 marks fully sorted with no false positives)
 	JZ	BYE		; Exit if list is sorted
 	CMP	CL,C4		; Is the display pointer at the end of the list?
 	JZ	RESET		; If yes, jump to reset label

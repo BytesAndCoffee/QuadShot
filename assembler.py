@@ -98,7 +98,7 @@ def flatten(foo):
 
 
 def tohex(val):
-    return str(hex(val & 0xFF))[2:]
+    return str(hex(val & 0xFF))[2:].zfill(2).upper()
 
 
 def twos_comp(val, bits):

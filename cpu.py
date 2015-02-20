@@ -2,9 +2,6 @@ import ram
 import assembler
 from operator import add, sub, mul, floordiv, mod
 
-inc = lambda x: x + 1
-dec = lambda x: x - 1
-
 
 def twos_comp(val, bits):
     """compute the 2's compliment of int value val"""
@@ -15,11 +12,11 @@ def twos_comp(val, bits):
 
 def cmp(a, b):
     if a == b:
-        return 1
-    elif a > b:
-        return -1
-    elif a < b:
         return 0
+    elif a < b:
+        return -1
+    elif a > b:
+        return 1
 
 
 class CPU:
@@ -34,8 +31,8 @@ class CPU:
                       'A1': {'len': 2, 'op': sub},
                       'A2': {'len': 2, 'op': mul},
                       'A3': {'len': 2, 'op': floordiv},
-                      'A4': {'len': 1, 'op': inc},
-                      'A5': {'len': 1, 'op': dec},
+                      'A4': {'len': 1, 'op': self.inc},
+                      'A5': {'len': 1, 'op': self.dec},
                       'A6': {'len': 2, 'op': mod},
                       'B0': {'len': 2, 'op': add},
                       'B1': {'len': 2, 'op': sub},
@@ -68,42 +65,42 @@ class CPU:
         self.jumped = 1
 
     def jz(self, arg):
-        if self.SR[6]:
+        if self.SR == 2:
             jump = twos_comp(int(arg[0], 16), 8)
             print('Added', jump, 'to IP')
             self.IP += jump
             self.jumped = 1
 
     def jnz(self, arg):
-        if not self.SR[6]:
+        if self.SR != 2:
             jump = twos_comp(int(arg[0], 16), 8)
             print('Added', jump, 'to IP')
             self.IP += jump
             self.jumped = 1
 
     def js(self, arg):
-        if self.SR[4]:
+        if self.SR == 8:
             jump = twos_comp(int(arg[0], 16), 8)
             print('Added', jump, 'to IP')
             self.IP += jump
             self.jumped = 1
 
     def jns(self, arg):
-        if not self.SR[4]:
+        if self.SR != 8:
             jump = twos_comp(int(arg[0], 16), 8)
             print('Added', jump, 'to IP')
             self.IP += jump
             self.jumped = 1
 
     def jo(self, arg):
-        if self.SR[5]:
+        if self.SR == 4:
             jump = twos_comp(int(arg[0], 16), 8)
             print('Added', jump, 'to IP')
             self.IP += jump
             self.jumped = 1
 
     def jno(self, arg):
-        if not self.SR[5]:
+        if self.SR != 4:
             jump = twos_comp(int(arg[0], 16), 8)
             print('Added', jump, 'to IP')
             self.IP += jump
@@ -117,32 +114,39 @@ class CPU:
         elif op == 'D2':
             self.ram.put(args[0], self.registers[args[1]])
         elif op == 'D3':
-            self.ram.put(self.registers[args[0]], self.ram.get(self.registers[args[1]]))
+            self.registers[args[0]] = self.ram.get(self.registers[args[1]])
+        elif op == 'D4':
+            self.ram.put(self.registers[args[0]], self.registers[args[1]])
         self.ram.show()
 
     def cmp(self, op: str, args: list):
-        self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.SR = 0
         if op == 'DA':
-            args = [self.registers[arg] for arg in args]
+            args = [self.registers[args[0]], self.registers[args[1]]]
         elif op == 'DB':
             args = [self.registers[args[0]], args[1]]
         elif op == 'DC':
             args = [self.registers[args[0]], self.ram.get(args[1])]
         res = cmp(*args)
-        if res == -1:
-            self.SR[4] = 1
-        elif res == 1:
-            self.SR[6] = 1
-        elif res == 0:
-            self.SR = [0 for _ in range(8)]
+        if res == 0:
+            self.SR = 2
+        elif res == -1:
+            self.SR = 8
 
     def push(self, arg):
-        self.ram.put(assembler.tohex(self.SP), arg[0])
-        dec(self.SP)
+        self.SP -= 1
+        self.ram.put(assembler.tohex(self.SP), self.registers[arg[0]])
+        self.ram.show()
 
     def pop(self, arg):
         self.registers[arg[0]] = self.ram.get(assembler.tohex(self.SP))
-        inc(self.SP)
+        self.SP += 1
+
+    def inc(self, arg):
+        return arg + 1
+
+    def dec(self, arg):
+        return arg - 1
 
     def fetch(self, loc):
         op = self.ram.get(loc)
@@ -155,17 +159,15 @@ class CPU:
         self.ram.image = assembler.load(code).image
 
     def run(self):
-        """
-        So far this is a debug method to list what the CPU sees in the code
-        """
         self.registers = {'00': '00', '01': '00', '02': '00', '03': '00'}
         self.IP = 0
         self.SP = int('0xBF', 16)
-        self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.SR = 0
         while True:
             self.jumped = 0
+            print(assembler.tohex(self.IP))
             func, args, forward, op = self.fetch(hex(self.IP))
-            print(func, args, forward, op, hex(self.IP))
+            print(func, args, forward, op)
             if func == 'HALT':
                 break
             elif op[0] == 'A':
@@ -179,6 +181,7 @@ class CPU:
                 func(args)
             print(self.registers)
             print(self.SR)
+            print(assembler.tohex(self.SP))
             if not self.jumped:
                 self.IP += forward + 1
 
@@ -189,8 +192,13 @@ if __name__ == '__main__':
         test.load(file)
         test.run()
         test.ram.show()
-        # code = ['ADD AL,01', 'INC AL', 'END']
-        # test.load(code)
-        # test.run()
-        # test.ram.show()
-        # print(test.registers)
+    # code = ['MOV AL,10',
+    #         'MOV AL,[50]',
+    #         'MOV [40],BL',
+    #         'MOV AL,[BL]',
+    #         'MOV [AL],BL',
+    #         '	END			; End program']
+    # test.load(code)
+    # test.run()
+    # test.ram.show()
+    print(test.registers)

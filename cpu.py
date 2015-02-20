@@ -1,6 +1,7 @@
 import ram
 import assembler
-from operator import add, sub, mul, floordiv, mod
+from operator import abs
+from functools import partial
 
 
 def twos_comp(val, bits):
@@ -10,13 +11,18 @@ def twos_comp(val, bits):
     return val
 
 
+def sign(a):
+    if a * (-1) == abs(a):
+        return -1
+    elif a == abs(a):
+        return 1
+
+
 def cmp(a, b):
     if a == b:
         return 0
-    elif a < b:
-        return -1
-    elif a > b:
-        return 1
+    else:
+        return sign(a - b)
 
 
 class CPU:
@@ -27,18 +33,18 @@ class CPU:
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         self.jumped = 0
         self.ram = ram.RAM()
-        self.table = {'A0': {'len': 2, 'op': add},
-                      'A1': {'len': 2, 'op': sub},
-                      'A2': {'len': 2, 'op': mul},
-                      'A3': {'len': 2, 'op': floordiv},
+        self.table = {'A0': {'len': 2, 'op': self.add},
+                      'A1': {'len': 2, 'op': self.sub},
+                      'A2': {'len': 2, 'op': self.mul},
+                      'A3': {'len': 2, 'op': self.div},
                       'A4': {'len': 1, 'op': self.inc},
                       'A5': {'len': 1, 'op': self.dec},
-                      'A6': {'len': 2, 'op': mod},
-                      'B0': {'len': 2, 'op': add},
-                      'B1': {'len': 2, 'op': sub},
-                      'B2': {'len': 2, 'op': mul},
-                      'B3': {'len': 2, 'op': floordiv},
-                      'B6': {'len': 2, 'op': mod},
+                      'A6': {'len': 2, 'op': self.mod},
+                      'B0': {'len': 2, 'op': self.add},
+                      'B1': {'len': 2, 'op': self.sub},
+                      'B2': {'len': 2, 'op': self.mul},
+                      'B3': {'len': 2, 'op': self.div},
+                      'B6': {'len': 2, 'op': self.mod},
                       'C0': {'len': 1, 'op': self.jmp},
                       'C1': {'len': 1, 'op': self.jz},
                       'C2': {'len': 1, 'op': self.jnz},
@@ -57,6 +63,21 @@ class CPU:
                       'E0': {'len': 1, 'op': self.push},
                       'E1': {'len': 1, 'op': self.pop},
                       '00': {'len': 0, 'op': 'HALT'}}
+
+    def add(self, args):
+        pass
+
+    def sub(self, args):
+        pass
+
+    def mul(self, args):
+        pass
+
+    def div(self, args):
+        pass
+
+    def mod(self, args):
+        pass
 
     def jmp(self, arg):
         jump = twos_comp(int(arg[0], 16), 8)
@@ -127,25 +148,27 @@ class CPU:
             args = [self.registers[args[0]], args[1]]
         elif op == 'DC':
             args = [self.registers[args[0]], self.ram.get(args[1])]
-        res = cmp(*args)
+        res = cmp(*map(partial(int, base=16), args))
         if res == 0:
             self.SR = 2
         elif res == -1:
             self.SR = 8
 
     def push(self, arg):
-        self.SP -= 1
         self.ram.put(assembler.tohex(self.SP), self.registers[arg[0]])
+        self.SP -= 1
         self.ram.show()
 
     def pop(self, arg):
-        self.registers[arg[0]] = self.ram.get(assembler.tohex(self.SP))
         self.SP += 1
+        self.registers[arg[0]] = self.ram.get(assembler.tohex(self.SP))
 
-    def inc(self, arg):
+    @staticmethod
+    def inc(arg):
         return arg + 1
 
-    def dec(self, arg):
+    @staticmethod
+    def dec(arg):
         return arg - 1
 
     def fetch(self, loc):
@@ -189,7 +212,7 @@ if __name__ == '__main__':
         test.run()
         test.ram.show()
     # code = ['MOV AL,10',
-    #         'MOV AL,[50]',
+    # 'MOV AL,[50]',
     #         'MOV [40],BL',
     #         'MOV AL,[BL]',
     #         'MOV [AL],BL',

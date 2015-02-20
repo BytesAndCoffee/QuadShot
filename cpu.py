@@ -67,32 +67,37 @@ class CPU:
         if cmp(*args) == 0:
             self.SR = 2
         elif cmp(args) == -1:
-            self.SR == 8
+            self.SR = 8
 
     def add(self, *args):
         a = args[0]
         args[0] += args[1]
         self.setflags(a, args[0])
+        return args[0]
 
     def sub(self, *args):
         a = args[0]
         args[0] -= args[1]
         self.setflags(a, args[0])
+        return args[0]
 
     def mul(self, *args):
         a = args[0]
         args[0] *= args[1]
         self.setflags(a, args[0])
+        return args[0]
 
     def div(self, *args):
         a = args[0]
         args[0] = floordiv(*args)
         self.setflags(a, args[0])
+        return args[0]
 
     def mod(self, args):
         a = args[0]
         args[0] = args[0] % args[1]
         self.setflags(a, args[0])
+        return args[0]
 
     def jmp(self, arg):
         jump = twos_comp(int(arg[0], 16), 8)

@@ -1,6 +1,6 @@
 import ram
 import assembler
-from operator import abs
+from operator import floordiv
 from functools import partial
 
 
@@ -12,17 +12,16 @@ def twos_comp(val, bits):
 
 
 def sign(a):
-    if a * (-1) == abs(a):
+    if a < 0:
         return -1
-    elif a == abs(a):
+    elif a > 0:
         return 1
+    else:
+        return 0
 
 
 def cmp(a, b):
-    if a == b:
-        return 0
-    else:
-        return sign(a - b)
+    return sign(a - b)
 
 
 class CPU:
@@ -64,20 +63,36 @@ class CPU:
                       'E1': {'len': 1, 'op': self.pop},
                       '00': {'len': 0, 'op': 'HALT'}}
 
-    def add(self, args):
-        pass
+    def setflags(self, *args):
+        if cmp(*args) == 0:
+            self.SR = 2
+        elif cmp(args) == -1:
+            self.SR == 8
 
-    def sub(self, args):
-        pass
+    def add(self, *args):
+        a = args[0]
+        args[0] += args[1]
+        self.setflags(a, args[0])
 
-    def mul(self, args):
-        pass
+    def sub(self, *args):
+        a = args[0]
+        args[0] -= args[1]
+        self.setflags(a, args[0])
 
-    def div(self, args):
-        pass
+    def mul(self, *args):
+        a = args[0]
+        args[0] *= args[1]
+        self.setflags(a, args[0])
+
+    def div(self, *args):
+        a = args[0]
+        args[0] = floordiv(*args)
+        self.setflags(a, args[0])
 
     def mod(self, args):
-        pass
+        a = args[0]
+        args[0] = args[0] % args[1]
+        self.setflags(a, args[0])
 
     def jmp(self, arg):
         jump = twos_comp(int(arg[0], 16), 8)

@@ -66,28 +66,28 @@ class CPU:
     def setflags(self, *args):
         if cmp(*args) == 0:
             self.SR = 2
-        elif cmp(args) == -1:
+        elif cmp(*args) == -1:
             self.SR = 8
 
-    def add(self, *args):
+    def add(self, args):
         a = args[0]
         args[0] += args[1]
         self.setflags(a, args[0])
         return args[0]
 
-    def sub(self, *args):
+    def sub(self, args):
         a = args[0]
         args[0] -= args[1]
         self.setflags(a, args[0])
         return args[0]
 
-    def mul(self, *args):
+    def mul(self, args):
         a = args[0]
         args[0] *= args[1]
         self.setflags(a, args[0])
         return args[0]
 
-    def div(self, *args):
+    def div(self, args):
         a = args[0]
         args[0] = floordiv(*args)
         self.setflags(a, args[0])

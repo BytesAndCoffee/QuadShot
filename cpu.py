@@ -107,45 +107,27 @@ class CPU:
 
     def jz(self, arg):
         if self.SR == 2:
-            jump = twos_comp(int(arg[0], 16), 8)
-            print('Added', jump, 'to IP')
-            self.IP += jump
-            self.jumped = 1
+            self.jmp(arg)
 
     def jnz(self, arg):
         if self.SR != 2:
-            jump = twos_comp(int(arg[0], 16), 8)
-            print('Added', jump, 'to IP')
-            self.IP += jump
-            self.jumped = 1
+            self.jmp(arg)
 
     def js(self, arg):
         if self.SR == 8:
-            jump = twos_comp(int(arg[0], 16), 8)
-            print('Added', jump, 'to IP')
-            self.IP += jump
-            self.jumped = 1
+            self.jmp(arg)
 
     def jns(self, arg):
         if self.SR != 8:
-            jump = twos_comp(int(arg[0], 16), 8)
-            print('Added', jump, 'to IP')
-            self.IP += jump
-            self.jumped = 1
+            self.jmp(arg)
 
     def jo(self, arg):
         if self.SR == 4:
-            jump = twos_comp(int(arg[0], 16), 8)
-            print('Added', jump, 'to IP')
-            self.IP += jump
-            self.jumped = 1
+            self.jmp(arg)
 
     def jno(self, arg):
         if self.SR != 4:
-            jump = twos_comp(int(arg[0], 16), 8)
-            print('Added', jump, 'to IP')
-            self.IP += jump
-            self.jumped = 1
+            self.jmp(arg)
 
     def mov(self, op: str, args: list):
         if op == 'D0':

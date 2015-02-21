@@ -223,6 +223,7 @@ class CPU:
             print(self.registers)
             if not self.jumped:
                 self.IP += forward + 1
+        print('Program finished')
 
 
 if __name__ == '__main__':

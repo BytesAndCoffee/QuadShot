@@ -29,7 +29,7 @@ def tokenize(lines):
     for line in lines:
         line = line.split(';')[0].strip('\t')
         if ':' in line:
-            yield line, []
+            yield line.strip('\t').strip(' '), []
             continue
         elif 'END' in line:
             break
@@ -58,9 +58,14 @@ def mov(args):
 def parse(lines):
     for line in lines:
         op, args = line
+        print(op, args)
         if args:
             if op == 'DB':
-                op, args = args, []
+                if len(args[0]) == 2:
+                    op, args = args, []
+                else:
+                    args = [tohex(ord(n)) for n in args[0][1:-1]]
+                    op, args = args[0], args[1:]
             elif op == 'CMP':
                 if args[1][0] == '[' and args[1][-1] == ']':
                     op = table[op][0]

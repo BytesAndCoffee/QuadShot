@@ -59,7 +59,9 @@ def parse(lines):
     for line in lines:
         op, args = line
         if args:
-            if op == 'CMP':
+            if op == 'DB':
+                op, args = args, []
+            elif op == 'CMP':
                 if args[1][0] == '[' and args[1][-1] == ']':
                     op = table[op][0]
                     args[0] = registers[args[0]]

@@ -1,3 +1,4 @@
+import assembler
 class RAM:
     """Simple RAM interface and storage object"""
     def __init__(self):
@@ -14,8 +15,12 @@ class RAM:
         self.image[x][y] = data.zfill(2).upper()
 
     def show(self):
-        for row in self.image:
-            print(row)
+        print('   00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F ')
+        for y, row in enumerate(self.image):
+            print(assembler.tohex(y*16), end=' ')
+            for item in row:
+                print(item, end=' ')
+            print('')
 
 
 if __name__ == "__main__":

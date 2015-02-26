@@ -29,10 +29,11 @@ def tokenize(lines):
     for line in lines:
         line = line.split(';')[0].strip('\t')
         if ':' in line:
-            yield line, []
+            yield line.strip('\t').strip(' '), []
             continue
-        elif 'END' in line:
-            break
+        if 'END' in line:
+            yield 'END', []
+            continue
         line = line.split()
         op, args = line[0], line[1].split(',')
         print('Input assembly code: ', op, *args)
@@ -58,9 +59,14 @@ def mov(args):
 def parse(lines):
     for line in lines:
         op, args = line
+        print(op, args)
         if args:
             if op == 'DB':
-                op, args = args, []
+                if len(args[0]) == 2:
+                    op, args = args, []
+                else:
+                    args = [tohex(ord(n)) for n in args[0][1:-1]]
+                    op, args = args[0], args[1:]
             elif op == 'CMP':
                 if args[1][0] == '[' and args[1][-1] == ']':
                     op = table[op][0]
@@ -86,6 +92,9 @@ def parse(lines):
                 args = [registers[args[0]]]
             elif op == 'MOV':
                 op, args = mov(args)
+        elif op == 'END':
+            op, args = '00', []
+            print(op)
         print('Generated machine code: ', op, *args)
         yield op, args
 
@@ -130,10 +139,11 @@ def load(program):
     memory = ram.RAM()
     program = list(program)
     program = find_jumps(list(flatten(parse(tokenize(program)))))
-    print('DB '+' DB '.join(program))
+    print('DB ' + ' DB '.join(program))
     for i in range(len(program)):
         memory.put(hex(i), program[i])
     return memory
+
 
 if __name__ == '__main__':
     with open('BUBBLE2.asm') as file:

@@ -167,11 +167,11 @@ class CPU:
 
     @staticmethod
     def inc(arg):
-        return arg + 1
+        return arg[0] + 1
 
     @staticmethod
     def dec(arg):
-        return arg - 1
+        return arg[0] - 1
 
     def fetch(self, loc):
         op = self.ram.get(loc)
@@ -189,15 +189,16 @@ class CPU:
         self.SP = int('0xBF', 16)
         self.SR = 0
         while True:
+            print(assembler.tohex(self.IP))
             self.jumped = 0
             func, args, forward, op = self.fetch(hex(self.IP))
             if func == 'HALT':
                 break
             elif op[0] == 'A':
                 self.registers[args[0]] = assembler.tohex(
-                    func(*[int(self.registers[register], 16) for register in args]))
+                    func([int(self.registers[register], 16) for register in args]))
             elif op[0] == 'B':
-                self.registers[args[0]] = assembler.tohex(func(int(self.registers[args[0]], 16), int(args[1], 16)))
+                self.registers[args[0]] = assembler.tohex(func([int(self.registers[args[0]], 16), int(args[1], 16)]))
             elif op[0] == 'D':
                 func(op, args)
             else:

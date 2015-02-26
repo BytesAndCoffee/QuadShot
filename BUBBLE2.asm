@@ -1,29 +1,32 @@
 	JMP     INIT		;
-	DB      "54321"		;
+	DB      "987654321123456789."	;
 INIT:                   ;
 	MOV    	AL,02		;
 	MOV	    BL,C0		;
 	JMP 	LOAD		;
 LOAD:                   ;
-	CMP	    AL,07		;
-	JZ	    START		;
 	MOV	    CL,[AL]		;
+	CMP     CL,2E       ;
+	JZ      START       ;
 	MOV	    [BL],CL		;
 	INC	    AL  		;
 	INC	    BL	    	;
 	JMP	    LOAD		;
 START:                  ;
+    DEC     BL          ;
+    MOV     [B0],BL     ;
 	MOV	    AL,0		; Swap register
 	MOV	    BL,0		; Swap register
 	MOV	    CL,C0		; Display pointer
 	MOV	    DL,0		; Swap counter
 	MOV     AL,20		; Move " " to AL
-	MOV	    [C5],AL		; Move AL to RAM [C5] (hardcoded for display popup)
 	MOV	    AL,0		; Reset AL for program start
 MAIN:                   ;
-	CMP	    DL,05		; Check for sorting completion (swap counter starts at 0, decrements at each comparison with a swap, increments at each comparison without a swap, value of 5 marks fully sorted with no false positives)
+    MOV     AL,[B0]     ;
+    SUB     AL,C0       ;
+	CMP	    DL,AL		; Check for sorting completion (swap counter starts at 0, decrements at each comparison with a swap, increments at each comparison without a swap, value of 5 marks fully sorted with no false positives)
 	JZ	    BYE		    ; Exit if list is sorted
-	CMP	    CL,C4		; Is the display pointer at the end of the list?
+	CMP	    CL,[B0]		; Is the display pointer at the end of the list?
 	JZ	    RESET		; If yes, jump to reset label
 	MOV	    AL,[CL]		; Move value at display pointer to AL
 	INC     CL		    ; Increment display pointer to get next value

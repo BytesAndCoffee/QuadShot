@@ -72,6 +72,7 @@ class CPU:
         args[0] = func(*args)
         if args[0] > 255:
             args[0] = mod(args[0], 255)
+            self.SR = 4
         if cmp(a, args[0]) == 0:
             self.SR = 2
         elif cmp(a, args[0]) == -1:

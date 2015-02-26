@@ -63,12 +63,6 @@ class CPU:
                       'E1': {'len': 1, 'op': self.pop},
                       '00': {'len': 0, 'op': 'HALT'}}
 
-    def setflags(self, *args):
-        if cmp(*args) == 0:
-            self.SR = 2
-        elif cmp(*args) == -1:
-            self.SR = 8
-
     def math(self, func, args):
         a = args[0]
         if func == self.inc:

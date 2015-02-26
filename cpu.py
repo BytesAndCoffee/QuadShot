@@ -1,6 +1,6 @@
 import ram
 import assembler
-from operator import floordiv
+from operator import add, sub, mul, mod, floordiv
 from functools import partial
 
 
@@ -32,18 +32,18 @@ class CPU:
         self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
         self.jumped = 0
         self.ram = ram.RAM()
-        self.table = {'A0': {'len': 2, 'op': self.add},
-                      'A1': {'len': 2, 'op': self.sub},
-                      'A2': {'len': 2, 'op': self.mul},
-                      'A3': {'len': 2, 'op': self.div},
+        self.table = {'A0': {'len': 2, 'op': add},
+                      'A1': {'len': 2, 'op': sub},
+                      'A2': {'len': 2, 'op': mul},
+                      'A3': {'len': 2, 'op': floordiv},
                       'A4': {'len': 1, 'op': self.inc},
                       'A5': {'len': 1, 'op': self.dec},
-                      'A6': {'len': 2, 'op': self.mod},
-                      'B0': {'len': 2, 'op': self.add},
-                      'B1': {'len': 2, 'op': self.sub},
-                      'B2': {'len': 2, 'op': self.mul},
-                      'B3': {'len': 2, 'op': self.div},
-                      'B6': {'len': 2, 'op': self.mod},
+                      'A6': {'len': 2, 'op': mod},
+                      'B0': {'len': 2, 'op': add},
+                      'B1': {'len': 2, 'op': sub},
+                      'B2': {'len': 2, 'op': mul},
+                      'B3': {'len': 2, 'op': floordiv},
+                      'B6': {'len': 2, 'op': mod},
                       'C0': {'len': 1, 'op': self.jmp},
                       'C1': {'len': 1, 'op': self.jz},
                       'C2': {'len': 1, 'op': self.jnz},
@@ -69,34 +69,19 @@ class CPU:
         elif cmp(*args) == -1:
             self.SR = 8
 
-    def add(self, args):
+    def math(self, func, args):
         a = args[0]
-        args[0] += args[1]
-        self.setflags(a, args[0])
-        return args[0]
-
-    def sub(self, args):
-        a = args[0]
-        args[0] -= args[1]
-        self.setflags(a, args[0])
-        return args[0]
-
-    def mul(self, args):
-        a = args[0]
-        args[0] *= args[1]
-        self.setflags(a, args[0])
-        return args[0]
-
-    def div(self, args):
-        a = args[0]
-        args[0] = floordiv(*args)
-        self.setflags(a, args[0])
-        return args[0]
-
-    def mod(self, args):
-        a = args[0]
-        args[0] = args[0] % args[1]
-        self.setflags(a, args[0])
+        if func == self.inc:
+            return self.inc(args)
+        elif func == self.dec:
+            return self.dec(args)
+        args[0] = func(*args)
+        if args[0] > 255:
+            args[0] = mod(args[0], 255)
+        if cmp(a, args[0]) == 0:
+            self.SR = 2
+        elif cmp(a, args[0]) == -1:
+            self.SR = 8
         return args[0]
 
     def jmp(self, arg):
@@ -196,9 +181,10 @@ class CPU:
                 break
             elif op[0] == 'A':
                 self.registers[args[0]] = assembler.tohex(
-                    func([int(self.registers[register], 16) for register in args]))
+                    self.math(func, [int(self.registers[register], 16) for register in args]))
             elif op[0] == 'B':
-                self.registers[args[0]] = assembler.tohex(func([int(self.registers[args[0]], 16), int(args[1], 16)]))
+                self.registers[args[0]] = assembler.tohex(
+                    self.math(func, [int(self.registers[args[0]], 16), int(args[1], 16)]))
             elif op[0] == 'D':
                 func(op, args)
             else:

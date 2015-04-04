@@ -1,5 +1,5 @@
 import ram
-import assembler
+import Drip
 from operator import add, sub, mul, mod, floordiv
 from functools import partial
 
@@ -137,13 +137,13 @@ class CPU:
             self.SR = 8
 
     def push(self, arg):
-        self.ram.put(assembler.tohex(self.SP), self.registers[arg[0]])
+        self.ram.put(Drip.tohex(self.SP), self.registers[arg[0]])
         self.SP -= 1
         self.ram.show()
 
     def pop(self, arg):
         self.SP += 1
-        self.registers[arg[0]] = self.ram.get(assembler.tohex(self.SP))
+        self.registers[arg[0]] = self.ram.get(Drip.tohex(self.SP))
 
     @staticmethod
     def inc(arg):
@@ -161,7 +161,7 @@ class CPU:
         return func, args, forward, op
 
     def load(self, code):
-        self.ram.image = assembler.load(code).image
+        self.ram.image = Drip.load(code).image
 
     def run(self):
         self.registers = {'00': '00', '01': '00', '02': '00', '03': '00'}
@@ -169,16 +169,16 @@ class CPU:
         self.SP = int('0xBF', 16)
         self.SR = 0
         while True:
-            print(assembler.tohex(self.IP))
+            print(Drip.tohex(self.IP))
             self.jumped = 0
             func, args, forward, op = self.fetch(hex(self.IP))
             if func == 'HALT':
                 break
             elif op[0] == 'A':
-                self.registers[args[0]] = assembler.tohex(
+                self.registers[args[0]] = Drip.tohex(
                     self.math(func, [int(self.registers[register], 16) for register in args]))
             elif op[0] == 'B':
-                self.registers[args[0]] = assembler.tohex(
+                self.registers[args[0]] = Drip.tohex(
                     self.math(func, [int(self.registers[args[0]], 16), int(args[1], 16)]))
             elif op[0] == 'D':
                 func(op, args)

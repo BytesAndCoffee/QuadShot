@@ -99,7 +99,7 @@ class CPU:
 
     def jmp(self, arg):
         jump = twos_comp(int(arg[0], 16), 16)
-        print('Added', jump, 'to IP')
+        # print('Added', jump, 'to IP')
         self.IP += jump
         self.jumped = 1
 
@@ -130,21 +130,21 @@ class CPU:
     def mov(self, op: str, args: list):
         if op == '00D0':
             self.registers[args[0]] = args[1]
-            print('Moved {0} into register {1}'.format(*args[::-1]))
+            #print('Moved {0} into register {1}'.format(*args[::-1]))
         elif op == '00D1':
             self.registers[args[0]] = self.ram.get(args[1])
-            print('Moved {0} from location [{1}] to register {2}'.format(self.ram.get(args[1]), args[1], args[0]))
+            #print('Moved {0} from location [{1}] to register {2}'.format(self.ram.get(args[1]), args[1], args[0]))
         elif op == '00D2':
             self.ram.put(args[0], self.registers[args[1]])
-            print('Moved {0} from register {1} to location [{2}]'.format(self.registers[args[1]], args[1], args[0]))
+            #print('Moved {0} from register {1} to location [{2}]'.format(self.registers[args[1]], args[1], args[0]))
         elif op == '00D3':
             self.registers[args[0]] = self.ram.get(self.registers[args[1]])
-            print('Moved {0} from location {1} pointed by register {2} to register {3}'.format(
-                self.ram.get(self.registers[args[1]]), self.registers[args[1]], args[1], args[0]))
+            # print('Moved {0} from location {1} pointed by register {2} to register {3}'.format(
+            #   self.ram.get(self.registers[args[1]]), self.registers[args[1]], args[1], args[0]))
         elif op == '00D4':
             self.ram.put(self.registers[args[0]], self.registers[args[1]])
-            print('Moved {0} from register {1} to location {2} pointed by register {3}'.format(
-                self.registers[args[1]], args[1], self.registers[args[0]], args[0]))
+            # print('Moved {0} from register {1} to location {2} pointed by register {3}'.format(
+            #   self.registers[args[1]], args[1], self.registers[args[0]], args[0]))
 
     def cmp(self, op: str, args: list):
         self.SR = 0

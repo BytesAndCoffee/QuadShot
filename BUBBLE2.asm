@@ -1,6 +1,6 @@
 .data_                  ;
-  string>sort="987654321"
-  literal>len=0009
+  string>sort="qwertyuiopasdfghjklzxcvbnm0987654321QWERTYUIOPASDFGHJKLZXCVBNM"
+  literal>len=003E
 .exec_                  ;
 .sub(PRINT):            ;
   POPG  CL              ;

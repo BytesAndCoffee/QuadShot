@@ -1,5 +1,5 @@
 .data_                  ;
-  string>sort="qwertyuiopasdfghjklzxcvbnm0987654321QWERTYUIOPASDFGHJKLZXCVBNM"
+  string>sort="zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFBECDA9876543210"
   literal>len=003E
 .exec_                  ;
 .sub(PRINT):            ;

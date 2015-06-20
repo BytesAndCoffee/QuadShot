@@ -1,6 +1,6 @@
 .data_                  ;
-  string>sort="321"
-  literal>len=0004
+  string>sort="987654321"
+  literal>len=0009
 .exec_                  ;
 .sub(PRINT):            ;
   POPG  CL              ;
@@ -13,22 +13,23 @@ CONT:                   ;
 RETURN:                 ;
   RET   0001                ;
 .endsub:                ;
+    MOV         BL,0000;
     MOV         CL,sort;
+    MOV         DL,0000;
 MAIN:                   ;
-    MOV       AL,len        ;
-    CMP       DL,AL          ;
+    MOV         AL,len  ;
+    MOV         BL,[AL] ;
+    CMP         DL,BL   ;
 	JZ        BYE            ; Exit if list is sorted
-	MOV        AL,len       ;
-	ADD        AL,CL        ;
-	CMP        CL,AL        ; Is the display pointer at the end of the list?
+	CMP        [CL],000A        ; Is the display pointer at the end of the list?
 	JZ        RESET        ; If yes, jump to reset label
 	MOV        AL,[CL]        ; Move value at display pointer to AL
 	INC     CL            ; Increment display pointer to get next value
 	MOV        BL,[CL]        ; Move value at display pointer to BL
+	CMP     BL,000A         ;
+	JZ      RESET           ;
 	CMP     AL,BL        ; Is AL greater than BL?
 	JNS        SWAP        ; If yes, jump to swap label
-	CMP        BL,AL        ; Is BL greater than AL?
-	JNS        CHECK        ; If yes, jump to check label
 CHECK:                  ;
 	INC        DL            ; Increment swap counter
 	JMP     MAIN        ; Jump back to main loop
@@ -45,7 +46,6 @@ SWAP:                   ;
 	JMP     MAIN        ; Jump back to main loop
 RESET:                  ;
 	MOV        CL,sort        ; Reset display pointer to C0
-	PUSH    CL                  ;
 	JMP        MAIN        ; Jump back to main loop
 BYE:                    ;
 	MOV     CL,sort     ; Re-initialize display pointer

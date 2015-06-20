@@ -20,7 +20,6 @@ def sign(a):
 
 
 def cmp(a, b):
-    print(a, b)
     return sign(a - b)
 
 
@@ -100,7 +99,6 @@ class CPU:
 
     def jmp(self, arg):
         jump = twos_comp(int(arg[0], 16), 16)
-        print(arg)
         print('Added', jump, 'to IP')
         self.IP += jump
         self.jumped = 1
@@ -130,7 +128,6 @@ class CPU:
             self.jmp(arg)
 
     def mov(self, op: str, args: list):
-        print(op, args)
         if op == '00D0':
             self.registers[args[0]] = args[1]
             print('Moved {0} into register {1}'.format(*args[::-1]))
@@ -206,7 +203,6 @@ class CPU:
 
     def fetch(self, loc):
         op = self.ram.get(loc)
-        print(Drip.tohex(int(loc, 16)), op)
         lookup = self.table[op]
         func, forward = lookup['op'], lookup['len']
         args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]

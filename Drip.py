@@ -21,7 +21,11 @@ table = {
     'CMP': ['00DC', '00DA', '00DB', '00DD'],
     'PUSH': '00E0',
     'POP': '00E1',
-    'OUT': ['00F0', '00F1', '00F2']
+    'PUSHG': '00EA',
+    'POPG': '00EB',
+    'OUT': ['00F0', '00F1', '00F2'],
+    'CALL': '0A00',
+    'RET': '0B00'
 }
 
 
@@ -38,19 +42,59 @@ registers = {'AH': '0010',
              'DL': '0004',
              'DX': '0400'}
 
+data_table = {
+    'global': 0,
+    'private': 1
+}
+
+d = []
+
+
+def data(line):
+    t, var = line.split('>')
+    var, d = var.split('=')
+    if t == 'literal':
+        d = [d]
+    elif t == 'list':
+        d = list(d[1:-1].split(','))
+    elif t == 'string':
+        d = [tohex(ord(v)) for v in d[1:-1]] + ['000A']
+    print('data', var, d)
+    return var, d
+
 
 def tokenize(lines):
+    mode = 0
     for line in lines:
-        line = line.split(';')[0].strip('\t')
-        if ':' in line:
-            yield line.strip('\t').strip(' '), []
+        print(line)
+        line = line.strip('\n')
+        if '.data_' in line:
+            mode = 1
             continue
-        if 'END' in line:
-            yield 'END', []
+        elif '.exec_' in line:
+            mode = 2
             continue
-        line = line.split()
-        op, args = line[0], line[1].split(',')
-        print('Input assembly code: ', op, *args)
+        else:
+            if mode == 1:
+                d.append(data(line.strip('\t').strip(' ')))
+                continue
+            elif mode == 2:
+                if line.strip('\t').strip(' ')[0] == ';':
+                    continue
+                line = line.split(';')[0].strip('\t').split('|')
+                print(line)
+                if ':' in line[0] and line[0] != '.':
+                    yield line[0].strip('\t').strip(' '), []
+                    continue
+                elif 'END' in line[0]:
+                    yield 'END', []
+                    continue
+                elif line[0][0] == '.':
+                    yield line[0].strip('\t').strip(' '), []
+                    continue
+                line = line[0].split()
+                op, args = line[0], line[1].split(',')
+                print('Input assembly code: ', op, *args)
         yield op, args
 
 
@@ -71,8 +115,8 @@ def mov(args):
 
 def parse(lines):
     for line in lines:
+        print(line)
         op, args = line
-        print(op, args)
         if args:
             if op == 'DB':
                 if len(args[0]) == 4:
@@ -105,7 +149,6 @@ def parse(lines):
                 op = table['jumps'][op]
             elif len(args) == 1 and op in table:
                 if op == 'OUT':
-                    # a = input('before ^')
                     if args[0][0] == '[' and args[0][-1] == ']':
                         op = table[op][2]
                         args[0] = registers[args[0][1:-1]]
@@ -115,9 +158,17 @@ def parse(lines):
                     else:
                         op = table[op][0]
                     print(op, args)
-                else:
+                elif op in ['CALL', 'RET']:
+                    print('\nFound RET')
+                    print(op, args)
+                    op, args = table[op], args
+                elif args[0] in registers:
+                    print(op, args)
                     op = table[op]
                     args = [registers[args[0]]]
+                else:
+                    print(op, args)
+                    op = table[op]
             elif op == 'MOV':
                 op, args = mov(args)
         elif op == 'OUT':
@@ -132,7 +183,7 @@ def parse(lines):
         elif op == 'END':
             op, args = '0000', []
             print(op)
-        print('Generated machine code: ', op, *args)
+        print(line, 'generated machine code:', op, args)
         yield op, args
 
 
@@ -156,6 +207,31 @@ def twos_comp(val, bits):
     return val
 
 
+def find_subs(program: list):
+    sub_found = False
+    subs = {}
+    main = []
+    name = ''
+    for lineno in range(len(program)):
+        print(program[lineno])
+        if '.sub(' in program[lineno][0]:
+            name = program[lineno][0][5:-2]
+            sub = []
+            sub_found = True
+            print('Sub found')
+            sub.append((program[lineno][0][5:-2] + ':', []))
+        elif sub_found and program[lineno][0] != '.endsub:':
+            sub.append(program[lineno])
+            print(sub)
+        elif program[lineno][0] == '.endsub:':
+            subs[name] = sub
+            sub_found = False
+        else:
+            main.append(program[lineno])
+    print(subs)
+    return main, subs
+
+
 def find_jumps(program):
     matches = {}
     l = program[:]
@@ -172,15 +248,78 @@ def find_jumps(program):
     return l
 
 
+def make_callable(program, calls):
+    call = False
+    out = []
+    count = 0
+    for i in range(len(program)):
+        if program[i] == '0A00':
+            call = True
+            continue
+        elif call:
+            out.append(calls[program[i]])
+            program[i] = tohex(count)
+            count += 1
+            call = False
+    return program, out
+
+
 def load(program):
     memory = ram.RAM()
-    program = list(program)
-    program = find_jumps(list(flatten(parse(tokenize(program)))))
+    program = list(tokenize(program))
+    print(program)
+    print('data', d)
+    offset = 0
+    var_table = {}
+    for var in d:
+        name, val = var
+        offset += len(val)
+        var_table[name] = [val, offset]
+    program, subs = find_subs(program)
+    subs2 = []
+    sub_locs = {}
+    sub_loc = 0
+    print(subs)
+    for sub in subs:
+        subs2.append(find_jumps(list(flatten(parse(subs[sub])))))
+        sub_locs[sub] = tohex(sub_loc)
+        sub_loc += len(subs2[-1])
+    subs = subs2
+    del subs2
+    print(subs)
+    program, call_table, = make_callable(find_jumps(list(flatten(parse(program)))), sub_locs)
+    sub_list = list(flatten(subs))
+    print(sub_list, subs)
+    print(sub_locs)
+    program = sub_list + program
     for i in range(len(program)):
-        memory.put(hex(i), program[i])
-    return memory
+        memory.put(tohex(i), program[i])
+    base = int('FF00', 16)
+    var_table_ref = {}
+    last = 0
+    address = int('FE00', 16)
+    for varname in var_table:
+        save = address
+        print('a', tohex(address))
+        var_table_ref[varname] = address
+        print(varname, '-->', var_table[varname])
+        for item in var_table[varname][0]:
+            print(item, tohex(address))
+            memory.put(tohex(address), item)
+            address += 1
+        address = save - 256
+    for i in range(len(program)):
+        if program[i] in var_table_ref.keys():
+            memory.put(tohex(i), tohex(var_table_ref[program[i]]))
+            print('data', tohex(var_table_ref[program[i]]))
+    for address, call in enumerate(call_table):
+        print(call, address)
+        memory.put(tohex(base + address), call)
+    memory.show()
+    print(subs)
+    return memory, len(list(flatten(subs)))
 
 
 if __name__ == '__main__':
-    with open('BUBBLE2.asm') as file:
-        load(file).show()
+    with open('test.asm') as file:
+        load(file)[0].show()

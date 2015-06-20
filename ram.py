@@ -1,8 +1,10 @@
 import Drip
+
+
 class RAM:
     """Simple RAM interface and storage object"""
     def __init__(self):
-        self.image = [['0000' for _ in range(256)] for _ in range(252)] + [['0020' for _ in range(256)] for _ in range(4)]
+        self.image = [['0000' for _ in range(256)] for _ in range(256)]
 
     def get(self, location: str) -> str:
         x, y = divmod(int(location, 16), 256)

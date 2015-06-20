@@ -1,30 +1,26 @@
-	JMP     INIT        ;
-	DB      "7936321973296732.";
-INIT:                   ;
-	MOV        AL,0002        ;
-	MOV        BL,FC00        ;
-	JMP     LOAD        ;
-LOAD:                   ;
-	MOV     CL,[AL]        ;
-	CMP     CL,002E       ;
-	JZ      START       ;
-	MOV        [BL],CL        ;
-	INC        AL          ;
-	INC        BL            ;
-	JMP        LOAD        ;
-START:                  ;
-	DEC     BL          ;
-	MOV     [0B00],BL     ;
-	MOV        AL,0000        ; Swap register
-	MOV        BL,0000        ; Swap register
-	MOV        CL,FC00        ; Display pointer
-	MOV        DL,0000        ; Swap counter
+.data_                  ;
+  string>sort="321"
+  literal>len=0004
+.exec_                  ;
+.sub(PRINT):            ;
+  POPG  CL              ;
+CONT:                   ;
+  CMP   [CL],000A       ; Is CL at EOL (end of string delimiter)?
+  JZ    RETURN          ; If yes, exit subprogram
+  OUT   [CL]            ; If no, output character at [CL] to stdout
+  INC   CL              ;
+  JMP   CONT           ;
+RETURN:                 ;
+  RET   0001                ;
+.endsub:                ;
+    MOV         CL,sort;
 MAIN:                   ;
-	MOV     AL,[0B00]     ;
-	SUB     AL,FC00       ;
-	CMP        DL,AL        ; Check for sorting completion (swap counter starts at 0, decrements at each comparison with a swap, increments at each comparison without a swap, value of 5 marks fully sorted with no false positives)
+    MOV       AL,len        ;
+    CMP       DL,AL          ;
 	JZ        BYE            ; Exit if list is sorted
-	CMP        CL,[0B00]        ; Is the display pointer at the end of the list?
+	MOV        AL,len       ;
+	ADD        AL,CL        ;
+	CMP        CL,AL        ; Is the display pointer at the end of the list?
 	JZ        RESET        ; If yes, jump to reset label
 	MOV        AL,[CL]        ; Move value at display pointer to AL
 	INC     CL            ; Increment display pointer to get next value
@@ -40,23 +36,19 @@ SWAP:                   ;
 	DEC        DL            ; Decrement swap counter
 	PUSH    AL            ; Push value 1 to stack from AL
 	PUSH    BL            ; Push value 2 to stack from BL
-	POP        AL            ; Pop value 2 from stack to AL
-	POP        BL            ; Pop value 1 from stack to BL
+	POP       AL            ; Pop value 2 from stack to AL
+	POP       BL            ; Pop value 1 from stack to BL
 	DEC        CL            ; Decrement display pointer
 	MOV        [CL],AL        ; Move AL to [CL]
 	INC        CL            ; Increment display pointer
 	MOV        [CL],BL        ; Move BL to [CL]
 	JMP     MAIN        ; Jump back to main loop
 RESET:                  ;
-	MOV        CL,FC00        ; Reset display pointer to C0
+	MOV        CL,sort        ; Reset display pointer to C0
+	PUSH    CL                  ;
 	JMP        MAIN        ; Jump back to main loop
 BYE:                    ;
-	MOV     CL,FC00     ; Re-initialize display pointer
-PRINT:                  ;
-	CMP     [CL],002E   ; Is CL at a period (end of list delimiter)?
-	JZ      EXIT        ; If yes, exit program
-	OUT     [CL]        ; If no, output character at [CL] to stdout
-	INC     CL          ;
-	JMP     PRINT         ;
-EXIT:                   ;
+	MOV     CL,sort     ; Re-initialize display pointer
+	PUSHG    CL          ;
+	CALL     PRINT       ;
 	END                    ; End program

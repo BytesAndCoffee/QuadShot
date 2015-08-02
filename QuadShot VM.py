@@ -1,6 +1,8 @@
-import ram, Drip
 from operator import add, sub, mul, mod, floordiv
 from functools import partial
+
+import ram
+import Drip
 
 
 def twos_comp(val, bits):
@@ -130,21 +132,14 @@ class CPU:
     def mov(self, op: str, args: list):
         if op == '00D0':
             self.registers[args[0]] = args[1]
-            #print('Moved {0} into register {1}'.format(*args[::-1]))
         elif op == '00D1':
             self.registers[args[0]] = self.ram.get(args[1])
-            #print('Moved {0} from location [{1}] to register {2}'.format(self.ram.get(args[1]), args[1], args[0]))
         elif op == '00D2':
             self.ram.put(args[0], self.registers[args[1]])
-            #print('Moved {0} from register {1} to location [{2}]'.format(self.registers[args[1]], args[1], args[0]))
         elif op == '00D3':
             self.registers[args[0]] = self.ram.get(self.registers[args[1]])
-            # print('Moved {0} from location {1} pointed by register {2} to register {3}'.format(
-            #   self.ram.get(self.registers[args[1]]), self.registers[args[1]], args[1], args[0]))
         elif op == '00D4':
             self.ram.put(self.registers[args[0]], self.registers[args[1]])
-            # print('Moved {0} from register {1} to location {2} pointed by register {3}'.format(
-            #   self.registers[args[1]], args[1], self.registers[args[0]], args[0]))
 
     def cmp(self, op: str, args: list):
         self.SR = 0
@@ -212,7 +207,6 @@ class CPU:
         loaded = Drip.load(code)
         self.ram.image, self.init = loaded[0].image, loaded[1]
 
-
     def run(self):
         self.registers = dict.fromkeys(Drip.registers.values(), '0000')
         self.IP = 0 + self.init
@@ -225,7 +219,6 @@ class CPU:
         while True:
             self.jumped = 0
             func, args, forward, op = self.fetch(hex(self.IP))
-            line = str(self.IP) + op + ''.join(args)
             if func == 'HALT':
                 break
             elif op[2] == 'A':
@@ -266,19 +259,6 @@ class CPU:
 
 if __name__ == '__main__':
     test = CPU()
-    # sys.stdout = open('output.txt', 'w')
-    with open('BUBBLE2.asm') as file:
+    with open('BUBBLE2.drip') as file:
         test.load(file)
         test.run()
-        # test.ram.show()
-    # code = ['MOV AL,002E',
-    #         'MOV BL,0100',
-    #         'MOV [BL],AL',
-    #         'OUT AL',
-    #         'OUT [BL]',
-    #         'OUT 002E',
-    #         '	END			; End program']
-    # test.load(code)
-    # test.run()
-    # test.ram.show()
-    # print(test.registers)

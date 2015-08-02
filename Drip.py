@@ -1,4 +1,6 @@
 import ram
+import Grind
+import os
 
 jumps = {'JMP': '00C0',
          'JZ': '00C1',
@@ -65,7 +67,9 @@ def data(line):
 def tokenize(lines):
     mode = 0
     for line in lines:
+        op, args = None, None
         line = line.strip('\n')
+        print(line)
         if '.data_' in line:
             mode = 1
             continue
@@ -250,6 +254,10 @@ def make_callable(program, calls):
 
 def load(program):
     memory = ram.RAM()
+    if 'BUBBLE2' + '.dripc' in os.listdir():
+        grind = Grind.Grind(file='BUBBLE2.drip', config='BUBBLE2.dripc')
+        print(grind.subs, grind.switches)
+        grind.sub()
     program = list(tokenize(program))
     var_table = {}
     for var in d:
@@ -270,7 +278,6 @@ def load(program):
     program = sub_list + program
     base = int('FF00', 16)
     var_table_ref = {}
-    last = 0
     address = int('FE00', 16)
     for varname in var_table:
         save = address
@@ -280,20 +287,15 @@ def load(program):
             memory.put(tohex(address), item)
             address += 1
         address = save - 256
-    wrap = 0
-    for i in range(len(program)):
-        if program[i][0] == '[':
-            program[i] = program[i][1:-1]
-        if program[i] in var_table_ref:
-            program[i] = tohex(var_table_ref[program[i]])
-    for i in range(len(program)):
-        memory.put(tohex(i), program[i])
+    final = program[:]
+    for i in range(len(final)):
+        if final[i][0] == '[':
+            final[i] = final[i][1:-1]
+        if final[i] in var_table_ref:
+            final[i] = tohex(var_table_ref[final[i]])
+    for i in range(len(final)):
+        memory.put(tohex(i), final[i])
     for address, call in enumerate(call_table):
         memory.put(tohex(base + address), call)
     memory.show()
     return memory, len(list(flatten(subs)))
-
-
-if __name__ == '__main__':
-    with open('test.asm') as file:
-        load(file)[0].show()

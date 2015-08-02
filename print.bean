@@ -1,0 +1,11 @@
+.sub(PRINT):            ;
+  POPG  CL              ;
+CONT:                   ;
+  CMP   [CL],000A       ; Is CL at EOL (end of string delimiter)?
+  JZ    RETURN          ; If yes, exit subprogram
+  OUT   [CL]            ; If no, output character at [CL] to stdout
+  INC   CL              ;
+  JMP   CONT            ;
+RETURN:                 ;
+  RET   0001            ;
+.endsub:                ;

@@ -1,0 +1,8 @@
+{
+  "subs": [
+    "%print%->print"
+  ],
+  "switches": {
+    "test": "test"
+  }
+}

@@ -1,8 +1,8 @@
 {
   "subs": [
-    "%print%->print"
+    "print"
   ],
   "switches": {
-    "test": "test"
+    "mode": "save"
   }
 }

@@ -1,6 +1,7 @@
+import os
+
 import ram
 import Grind
-import os
 
 jumps = {'JMP': '00C0',
          'JZ': '00C1',
@@ -69,12 +70,13 @@ def tokenize(lines):
     for line in lines:
         op, args = None, None
         line = line.strip('\n')
-        print(line)
         if '.data_' in line:
             mode = 1
             continue
         elif '.exec_' in line:
             mode = 2
+            continue
+        elif '%' in line:
             continue
         else:
             if mode == 1:
@@ -254,10 +256,14 @@ def make_callable(program, calls):
 
 def load(program):
     memory = ram.RAM()
+    settings = None
     if 'BUBBLE2' + '.dripc' in os.listdir():
         grind = Grind.Grind(file='BUBBLE2.drip', config='BUBBLE2.dripc')
         print(grind.subs, grind.switches)
         grind.sub()
+        program = grind.out()
+        if grind.switches:
+            settings = grind.switches
     program = list(tokenize(program))
     var_table = {}
     for var in d:

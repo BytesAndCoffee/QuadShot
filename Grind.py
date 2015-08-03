@@ -1,6 +1,5 @@
 # Grind is the assembly pre-processor for Drip, featuring an interactive mode for command line setup of the Drip system
 import json
-import re
 
 
 def verify_dict(check, args, default=None):
@@ -24,11 +23,17 @@ class Grind:
         self.switches, self.subs = parse_dict(json.load(config), ['switches', 'subs'], dict())
 
     def sub(self):
-        if self.subs['files']:
-            for s in self.subs['files']:
-                match, result = s.split('->')
-                regex = re.compile(match)
-                for line in self.file:
-                    regex.sub(result, line)
-                for line in self.file:
-                    print(line)
+        if self.subs:
+            for s in self.subs:
+                index = 0
+                max = len(self.file)
+                result = open(s + '.bean')
+                result = [line for line in result]
+                while index < max - 1:
+                    if '%' + s + '%' in self.file[index]:
+                        self.file = self.file[:index + 1] + result + self.file[index + 1:]
+                        max += len(result)
+                    index += 1
+
+    def out(self):
+        return self.file

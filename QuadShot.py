@@ -259,6 +259,7 @@ class CPU:
 
 if __name__ == '__main__':
     test = CPU()
+
     with open('BUBBLE2.drip') as file:
         test.load(file)
         test.run()

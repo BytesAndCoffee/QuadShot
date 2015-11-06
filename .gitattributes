@@ -1,1 +1,0 @@
-set eol: "This attribute sets a specific line-ending style to be used in the working directory. It enables end-of-line normalization without any content checks, effectively setting the text attribute."

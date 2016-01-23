@@ -100,21 +100,6 @@ def tokenize(lines):
         yield op, args
 
 
-def mov(args):
-    if args[0] in registers:
-        if len(args[1]) == 4 and args[1][1:-1] in registers:
-            return '00D3', [registers[args[0]], registers[args[1][1:-1]]]
-        elif len(args[1]) == 6:
-            return '00D1', [registers[args[0]], args[1][1:-1]]
-        else:
-            return '00D0', [registers[args[0]], args[1]]
-    else:
-        if args[0][1:-1] in registers:
-            return '00D4', [registers[args[0][1:-1]], registers[args[1]]]
-        else:
-            return '00D2', [args[0][1:-1], registers[args[1]]]
-
-
 def parse(lines):
     for line in lines:
         op, args = line
@@ -179,6 +164,21 @@ def parse(lines):
         elif op == 'END':
             op, args = '0000', []
         yield op, args
+
+
+def mov(args):
+    if args[0] in registers:
+        if len(args[1]) == 4 and args[1][1:-1] in registers:
+            return '00D3', [registers[args[0]], registers[args[1][1:-1]]]
+        elif len(args[1]) == 6:
+            return '00D1', [registers[args[0]], args[1][1:-1]]
+        else:
+            return '00D0', [registers[args[0]], args[1]]
+    else:
+        if args[0][1:-1] in registers:
+            return '00D4', [registers[args[0][1:-1]], registers[args[1]]]
+        else:
+            return '00D2', [args[0][1:-1], registers[args[1]]]
 
 
 def flatten(foo):

@@ -20,8 +20,6 @@ MAIN:                   ;
   JZ    RESET           ;
   CMP   AH,AL           ; Is AL greater than BL?
   JNS   SWAP            ; If yes, jump to swap label
-  CMP   AH,AL           ; Is AL greater than BL?
-  JZ    CHECK           ;
 CHECK:                  ;
   INC   DL              ; Increment swap counter
   JMP   MAIN            ; Jump back to main loop

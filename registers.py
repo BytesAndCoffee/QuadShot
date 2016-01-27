@@ -1,4 +1,6 @@
 # register API class file
+# TODO: implement [ABCD][HL][HL]
+# TODO: implement (AB|BC|CD|DA)X
 from Drip import registers
 registers = list(registers.values())
 mask = {'000_': 'l', '00_0': 'h', '0_00': 'x'}

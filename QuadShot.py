@@ -192,7 +192,8 @@ class CPU:
 
     def swap(self, arg):
         data = self.registers[arg[0]]
-        self.registers[arg[0]] = data[len(data) / 2:] + data[:len(data) / 2]
+        half = int(len(data) / 2)
+        self.registers[arg[0]] = data[half:] + data[:half]
 
     @staticmethod
     def inc(arg):

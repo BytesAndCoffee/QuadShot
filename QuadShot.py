@@ -192,8 +192,7 @@ class CPU:
 
     def swap(self, arg):
         data = self.registers[arg[0]]
-        h, l = data[4:], data[:4]
-        self.registers[arg[0]] = h + l
+        self.registers[arg[0]] = data[4:] + data[:4]
 
     @staticmethod
     def inc(arg):

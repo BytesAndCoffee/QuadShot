@@ -1,6 +1,6 @@
 from operator import add, sub, mul, mod, floordiv
 from functools import partial
-from registers import Registers, build
+from registers import Registers
 
 import ram
 import Drip
@@ -192,7 +192,7 @@ class CPU:
 
     def swap(self, arg):
         data = self.registers[arg[0]]
-        self.registers[arg[0]] = data[4:] + data[:4]
+        self.registers[arg[0]] = data[len(data) / 2:] + data[:len(data) / 2]
 
     @staticmethod
     def inc(arg):

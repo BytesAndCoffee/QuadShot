@@ -92,7 +92,6 @@ class Registers(dict):
         doubles = [dict.__getitem__(self, k).assign('x') for k in [str(n) for n in range(1, 5)]]
         doubles.append(doubles[0])
         adjacents = [Adjacent(doubles[i], doubles[i + 1]) for i in range(4)]
-        print(dict.keys(self))
         for i in range(1, 5):
             dict.__getitem__(self, str(i)).add_adjacent(adjacents[i - 1])
 

@@ -1,5 +1,6 @@
 from operator import add, sub, mul, mod, floordiv
 from functools import partial
+from registers import Registers
 
 import ram
 import Drip
@@ -27,7 +28,7 @@ def cmp(a, b):
 
 class CPU:
     def __init__(self):
-        self.registers = dict.fromkeys(Drip.registers.values(), '0000')
+        self.registers = Registers()  # dict.fromkeys(Drip.registers.values(), '0000')
         self.IP = 0
         self.init = 0
         self.CSP = int('0xFFFF', 16)

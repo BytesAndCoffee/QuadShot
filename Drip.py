@@ -1,7 +1,15 @@
 import os
+import re
 
 import ram
 import Grind
+
+matches = {'R': r'[A-D][LH]',
+           'D': r'[0-9A-F]{4}',
+           'MA': r'\[[A-D][LH]\]',
+           'MD': r'\[[0-9A-F]{4}\]'}
+matches = {key: re.compile(matches[key]) for key in matches}
+
 
 jumps = {'JMP': '00C0',
          'JZ': '00C1',
@@ -116,6 +124,7 @@ def mov(args):
 
 
 def parse(lines):
+    is_mem = lambda arg: True if arg[0] == '[' and arg[-1] == ']' else False
     for line in lines:
         op, args = line
         if args:
@@ -126,14 +135,14 @@ def parse(lines):
                     args = [tohex(ord(n)) for n in args[0][1:-1]]
                     op, args = args[0], args[1:]
             elif op == 'CMP':
-                if args[1][0] == '[' and args[1][-1] == ']':
+                if is_mem(args[1]):
                     op = table[op][0]
                     args[0] = registers[args[0]]
                     args[1] = args[1][1:-1]
                 elif args[1] in registers:
                     op = table[op][1]
                     args = [registers[arg] for arg in args]
-                elif args[0][0] == '[' and args[0][-1] == ']':
+                elif is_mem(args[0]):
                     op = table[op][3]
                     args[0] = registers[args[0][1:-1]]
                 else:
@@ -150,7 +159,7 @@ def parse(lines):
                 op = table['jumps'][op]
             elif len(args) == 1 and op in table:
                 if op == 'OUT':
-                    if args[0][0] == '[' and args[0][-1] == ']':
+                    if is_mem(args[0]):
                         op = table[op][2]
                         args[0] = registers[args[0][1:-1]]
                     elif args[0] in registers:

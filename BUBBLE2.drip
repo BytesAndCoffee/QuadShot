@@ -13,28 +13,25 @@ MAIN:                   ;
   JZ    BYE             ; Exit if list is sorted
   CMP   [CL],000A       ; Is the display pointer at the end of the list?
   JZ    RESET           ; If yes, jump to reset label
-  MOV   AL,[CL]         ; Move value at display pointer to AL
+  MOV   AH,[CL]         ; Move value at display pointer to AL
   INC   CL              ; Increment display pointer to get next value
-  MOV   BL,[CL]         ; Move value at display pointer to BL
-  CMP   BL,000A         ;
+  MOV   AL,[CL]         ; Move value at display pointer to BL
+  CMP   AL,000A         ;
   JZ    RESET           ;
-  CMP   AL,BL           ; Is AL greater than BL?
+  CMP   AH,AL           ; Is AL greater than BL?
   JNS   SWAP            ; If yes, jump to swap label
-  CMP   AL,BL           ; Is AL greater than BL?
+  CMP   AH,AL           ; Is AL greater than BL?
   JZ    CHECK           ;
 CHECK:                  ;
   INC   DL              ; Increment swap counter
   JMP   MAIN            ; Jump back to main loop
 SWAP:                   ;
   DEC   DL              ; Decrement swap counter
-  PUSH  AL              ; Push value 1 to stack from AL
-  PUSH  BL              ; Push value 2 to stack from BL
-  POP   AL              ; Pop value 2 from stack to AL
-  POP   BL              ; Pop value 1 from stack to BL
+  SWP   AX              ; Swap values in AH and AL
   DEC   CL              ; Decrement display pointer
-  MOV   [CL],AL         ; Move AL to [CL]
+  MOV   [CL],AH         ; Move AL to [CL]
   INC   CL              ; Increment display pointer
-  MOV   [CL],BL         ; Move BL to [CL]
+  MOV   [CL],AL         ; Move BL to [CL]
   JMP   MAIN            ; Jump back to main loop
 RESET:                  ;
   MOV   CL,sort         ; Reset display pointer to C0

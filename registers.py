@@ -1,7 +1,6 @@
 # register API class file
 from Drip import registers
 registers = list(registers.values())
-print(registers)
 mask = {'000_': 'l', '00_0': 'h', '0_00': 'x'}
 
 
@@ -88,9 +87,7 @@ class Registers(dict):
 
     def __setitem__(self, key, value):
         reg, slot = build(key)
-        print('1', key, reg, slot, dict.__getitem__(self, reg))
         dict.__getitem__(self, reg)[slot] = value
-        print('2', key, reg, slot, dict.__getitem__(self, reg))
 
 
 if __name__ == '__main__':

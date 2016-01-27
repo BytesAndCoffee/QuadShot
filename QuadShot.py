@@ -1,6 +1,6 @@
 from operator import add, sub, mul, mod, floordiv
 from functools import partial
-from registers import Registers
+from registers import Registers, build
 
 import ram
 import Drip
@@ -82,6 +82,7 @@ class CPU:
                       '00F2': {'len': 1, 'op': self.out},
                       '0A00': {'len': 1, 'op': None},
                       '0B00': {'len': 1, 'op': None},
+                      '0C00': {'len': 1, 'op': self.swap},
                       '0000': {'len': 0, 'op': 'HALT'}}
 
     def math(self, func, args):
@@ -189,6 +190,11 @@ class CPU:
             self.stdout.append(self.ram.get(self.registers[arg[0]]))
         print(self.stdout)
 
+    def swap(self, arg):
+        data = self.registers[arg[0]]
+        h, l = data[4:], data[:4]
+        self.registers[arg[0]] = h + l
+
     @staticmethod
     def inc(arg):
         return arg[0] + 1
@@ -209,7 +215,7 @@ class CPU:
         self.ram.image, self.init = loaded[0].image, loaded[1]
 
     def run(self):
-        self.registers = dict.fromkeys(Drip.registers.values(), '0000')
+        self.registers = Registers()
         self.IP = 0 + self.init
         print('init', self.init)
         self.CSP = int('0xFFFF', 16)

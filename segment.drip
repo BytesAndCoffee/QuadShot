@@ -1,0 +1,8 @@
+.exec_
+    MOV     AL,1234 ;
+    PUSH    AL      ;
+    POP     BL      ;
+    SWP     AL      ;
+    SUB     AL,BL   ;
+    OUT     AL      ;
+    END             ;

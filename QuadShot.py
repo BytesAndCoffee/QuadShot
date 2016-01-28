@@ -1,4 +1,4 @@
-from operator import add, sub, mul, mod, floordiv
+from operator import add, sub, mul, mod, floordiv, xor
 from functools import partial
 from registers import Registers
 
@@ -48,11 +48,13 @@ class CPU:
                       '00A4': {'len': 1, 'op': self.inc},
                       '00A5': {'len': 1, 'op': self.dec},
                       '00A6': {'len': 2, 'op': mod},
+                      '00A7': {'len': 2, 'op': xor},
                       '00B0': {'len': 2, 'op': add},
                       '00B1': {'len': 2, 'op': sub},
                       '00B2': {'len': 2, 'op': mul},
                       '00B3': {'len': 2, 'op': floordiv},
                       '00B6': {'len': 2, 'op': mod},
+                      '00B7': {'len': 2, 'op': xor},
                       '00C0': {'len': 1, 'op': self.jmp},
                       '00C1': {'len': 1, 'op': self.jz},
                       '00C2': {'len': 1, 'op': self.jnz},
@@ -210,8 +212,8 @@ class CPU:
         args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]
         return func, args, forward, op
 
-    def load(self, code):
-        loaded = Drip.load(code)
+    def load(self, code, name):
+        loaded = Drip.load(code, name)
         self.ram.image, self.init = loaded[0].image, loaded[1]
 
     def run(self):
@@ -266,7 +268,7 @@ class CPU:
 
 if __name__ == '__main__':
     test = CPU()
-
-    with open('BUBBLE2.drip') as file:
-        test.load(file)
+    name = 'BUBBLE2'
+    with open(name + '.drip') as file:
+        test.load(file, name)
         test.run()

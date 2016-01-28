@@ -1,14 +1,7 @@
 import os
-import re
 
 import ram
 import Grind
-
-matches = {'R': r'[A-D][LH]',
-           'D': r'[0-9A-F]{4}',
-           'MA': r'\[[A-D][LH]\]',
-           'MD': r'\[[0-9A-F]{4}\]'}
-matches = {key: re.compile(matches[key]) for key in matches}
 
 
 jumps = {'JMP': '00C0',
@@ -24,7 +17,8 @@ table = {
         'SUB': ['00A1', '00B1'],
         'MUL': ['00A2', '00B2'],
         'DIV': ['00A3', '00B3'],
-        'MOD': ['00A6', '00B6']},
+        'MOD': ['00A6', '00B6'],
+        'XOR': ['00A7', '00B7']},
     'INC': '00A4',
     'DEC': '00A5',
     'jumps': jumps,
@@ -206,7 +200,7 @@ def flatten(foo):
 
 
 def tohex(val):
-    return str(hex(val & 0xFFFF))[2:].zfill(4).upper()
+    return hex(val & 0xFFFF)[2:].zfill(4).upper()
 
 
 def twos_comp(val, bits):
@@ -269,11 +263,11 @@ def make_callable(program, calls):
     return program, out
 
 
-def load(program):
+def load(program, fname):
     memory = ram.RAM()
     settings = None
-    if 'BUBBLE2' + '.dripc' in os.listdir():
-        grind = Grind.Grind(file='BUBBLE2.drip', config='BUBBLE2.dripc')
+    if fname + '.dripc' in os.listdir('.'):
+        grind = Grind.Grind(file=fname + '.drip', config=fname + '.dripc')
         print(grind.subs, grind.switches)
         grind.sub()
         program = grind.out()

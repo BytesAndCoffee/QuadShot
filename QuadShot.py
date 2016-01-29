@@ -1,13 +1,13 @@
 from operator import add, sub, mul, mod, floordiv, xor
 from functools import partial
 from registers import Registers
+from Roast import VDU
 
 import ram
 import Drip
 
 
 def twos_comp(val, bits):
-    """compute the 2's compliment of int value val"""
     if val & (1 << (bits - 1)) != 0:
         val -= (1 << bits)
     return val
@@ -28,16 +28,17 @@ def cmp(a, b):
 
 class CPU:
     def __init__(self):
-        self.registers = Registers()  # dict.fromkeys(Drip.registers.values(), '0000')
+        self.registers = Registers(16)
         self.IP = 0
         self.init = 0
         self.CSP = int('0xFFFF', 16)
         self.GSP = int('0xFEFF', 16)
         self.MSP = int('0xFDFF', 16)
         self.PSP = self.MSP
-        self.SR = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.SR = 0
         self.jumped = 0
-        self.ram = ram.RAM()
+        self.ram = ram.RAM(256)
+        self.vdu = VDU(self, 256)
         self.stdout = []
         self.stack = []
         self.debug = ''
@@ -85,6 +86,8 @@ class CPU:
                       '0A00': {'len': 1, 'op': None},
                       '0B00': {'len': 1, 'op': None},
                       '0C00': {'len': 1, 'op': self.swap},
+                      '0D00': {'len': 2, 'op': self.vdu.get},
+                      '0D01': {'len': 2, 'op': self.vdu.put},
                       '0000': {'len': 0, 'op': 'HALT'}}
 
     def math(self, func, args):
@@ -212,12 +215,12 @@ class CPU:
         args = [self.ram.get(hex(int(loc, 16) + i + 1)) for i in range(forward)]
         return func, args, forward, op
 
-    def load(self, code, name):
-        loaded = Drip.load(code, name)
+    def load(self, code, n):
+        loaded = Drip.load(code, n)
         self.ram.image, self.init = loaded[0].image, loaded[1]
 
     def run(self):
-        self.registers = Registers()
+        self.registers = Registers(16)
         self.IP = 0 + self.init
         print('init', self.init)
         self.CSP = int('0xFFFF', 16)

@@ -3,7 +3,6 @@ import os
 import ram
 import Grind
 
-
 jumps = {'JMP': '00C0',
          'JZ': '00C1',
          'JNZ': '00C2',
@@ -31,9 +30,12 @@ table = {
     'OUT': ['00F0', '00F1', '00F2'],
     'CALL': '0A00',
     'RET': '0B00',
-    'SWP': '0C00'
+    'SWP': '0C00',
+    'visual': {
+        'VIP': '0D00',
+        'VIG': '0D01'
+    }
 }
-
 
 registers = {'AH': '0010',
              'AL': '0001',
@@ -140,6 +142,8 @@ def parse(lines):
                 else:
                     op = table['arithmetic'][op][1]
                     args[0] = registers[args[0]]
+            elif op in table['visual']:
+                op, args = table['visual'][op], args
             elif op in table['jumps']:
                 op = table['jumps'][op]
             elif len(args) == 1 and op in table:
@@ -264,7 +268,7 @@ def make_callable(program, calls):
 
 
 def load(program, fname):
-    memory = ram.RAM()
+    memory = ram.RAM(256)
     settings = None
     if fname + '.dripc' in os.listdir('.'):
         grind = Grind.Grind(file=fname + '.drip', config=fname + '.dripc')

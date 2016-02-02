@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from operator import add, sub, mul, mod, floordiv, xor
 from functools import partial
 from registers import Registers

@@ -1,8 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from operator import add, sub, mul, mod, floordiv, xor
 from functools import partial
 from registers import Registers
+import sys
 
 import ram
 import Drip
@@ -270,7 +271,10 @@ class CPU:
 
 if __name__ == '__main__':
     test = CPU()
-    name = 'BUBBLE2'
+    if len(sys.argv) < 2:
+        name = 'BUBBLE2'
+    else:
+        name = sys.argv[1]
     with open(name + '.drip') as file:
         test.load(file, name)
         test.run()

@@ -275,6 +275,7 @@ if __name__ == '__main__':
         name = 'BUBBLE2'
     else:
         name = sys.argv[1]
+    
     with open(name + '.drip') as file:
         test.load(file, name)
         test.run()

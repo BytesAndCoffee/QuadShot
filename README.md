@@ -1,2 +1,2 @@
 #QuadShot
-A CPU and Assembly JIT compiler written in Python
+A CPU and Assembly compiler written in Python

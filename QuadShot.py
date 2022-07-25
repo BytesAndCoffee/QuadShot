@@ -42,16 +42,19 @@ class CPU:
         self.jumped = 0
         self.ram = ram.RAM()
         self.stdout = []
+        self.stdin = [Drip.tohex(ord(c)) for c in sys.argv[-1]] + ['000A'] if len(sys.argv) > 2 else ['000A']
+        print(self.stdin)
         self.stack = []
         self.debug = ''
-        self.table = {'00A0': {'len': 2, 'op': add},
-                      '00A1': {'len': 2, 'op': sub},
-                      '00A2': {'len': 2, 'op': mul},
-                      '00A3': {'len': 2, 'op': floordiv},
-                      '00A4': {'len': 1, 'op': self.inc},
-                      '00A5': {'len': 1, 'op': self.dec},
-                      '00A6': {'len': 2, 'op': mod},
-                      '00A7': {'len': 2, 'op': xor},
+        self.table = {
+            '00A0':           {'len': 2, 'op': add},
+            '00A1':           {'len': 2, 'op': sub},
+            '00A2':           {'len': 2, 'op': mul},
+            '00A3':           {'len': 2, 'op': floordiv},
+            '00A4':           {'len': 1, 'op': self.inc},
+            '00A5':           {'len': 1, 'op': self.dec},
+            '00A6':           {'len': 2, 'op': mod},
+            '00A7':           {'len': 2, 'op': xor},
                       '00B0': {'len': 2, 'op': add},
                       '00B1': {'len': 2, 'op': sub},
                       '00B2': {'len': 2, 'op': mul},
@@ -62,9 +65,9 @@ class CPU:
                       '00C1': {'len': 1, 'op': self.jz},
                       '00C2': {'len': 1, 'op': self.jnz},
                       '00C3': {'len': 1, 'op': self.js},
-                      '00C4': {'len': 1, 'op': self.jns},
-                      '00C5': {'len': 1, 'op': self.jo},
-                      '00C6': {'len': 1, 'op': self.jno},
+            '00C4': {'len': 1, 'op': self.jns},
+            '00C5': {'len': 1, 'op': self.jo},
+            '00C6': {'len': 1, 'op': self.jno},
                       '00D0': {'len': 2, 'op': self.mov},
                       '00D1': {'len': 2, 'op': self.mov},
                       '00D2': {'len': 2, 'op': self.mov},
@@ -75,20 +78,24 @@ class CPU:
                       '00DC': {'len': 2, 'op': self.cmp},
                       '00DD': {'len': 2, 'op': self.cmp},
                       '00E0': {'len': 1, 'op': self.push},
-                      '00E1': {'len': 1, 'op': self.pop},
-                      '00E2': {'len': 1, 'op': self.push},
-                      '00E3': {'len': 1, 'op': self.pop},
-                      '00EA': {'len': 1, 'op': self.push},
-                      '00EB': {'len': 1, 'op': self.pop},
-                      '00EC': {'len': 1, 'op': self.push},
-                      '00ED': {'len': 1, 'op': self.pop},
-                      '00F0': {'len': 1, 'op': self.out},
-                      '00F1': {'len': 1, 'op': self.out},
-                      '00F2': {'len': 1, 'op': self.out},
-                      '0A00': {'len': 1, 'op': None},
-                      '0B00': {'len': 1, 'op': None},
-                      '0C00': {'len': 1, 'op': self.swap},
-                      '0000': {'len': 0, 'op': 'HALT'}}
+            '00E1':           {'len': 1, 'op': self.pop},
+            '00E2':           {'len': 1, 'op': self.push},
+            '00E3':           {'len': 1, 'op': self.pop},
+            '00EA':           {'len': 1, 'op': self.push},
+            '00EB':           {'len': 1, 'op': self.pop},
+            '00EC':           {'len': 1, 'op': self.push},
+            '00ED':           {'len': 1, 'op': self.pop},
+            '00F0':           {'len': 1, 'op': self.out},
+            '00F1':           {'len': 1, 'op': self.out},
+            '00F2':           {'len': 1, 'op': self.out},
+            '00FD':           {'len': 1, 'op': self.asm_in},
+            '00FE':           {'len': 1, 'op': self.asm_in},
+            '00FF':           {'len': 1, 'op': self.asm_in},
+            '0A00':           {'len': 1, 'op': None},
+            '0B00':           {'len': 1, 'op': None},
+            '0C00':           {'len': 1, 'op': self.swap},
+            '0000':           {'len': 0, 'op': 'HALT'}
+        }
 
     def math(self, func, args):
         a = args[0]
@@ -187,13 +194,20 @@ class CPU:
             return self.ram.get(Drip.tohex(self.PSP))
 
     def out(self, op, arg):
-        if op[3] == '0':
+        if op[3] == '0':  # Literal
             self.stdout.append(arg[0])
-        elif op[3] == '1':
+        elif op[3] == '1':  # Register
             self.stdout.append(self.registers[arg[0]])
-        else:
+        else:  # RAM
             self.stdout.append(self.ram.get(self.registers[arg[0]]))
-        print(self.stdout)
+
+    def asm_in(self, op, arg):
+        if op[3] == 'F':  # Register
+            self.registers[arg[0]] = self.stdin.pop(0)
+        elif op[3] == 'E':  # RAM (Register)
+            self.ram.put(self.registers[arg[0]], self.stdin.pop(0))
+        else:  # RAM (Direct)
+            self.ram.put(self.ram.get(arg[0]), self.stdin.pop(0))
 
     def swap(self, arg):
         data = self.registers[arg[0]]
@@ -250,6 +264,7 @@ class CPU:
                 continue
             elif op[1] == 'B':
                 self.IP = int(self.pop('call'), 16)
+                print('return branch')
                 self.MSP += 265
                 self.PSP = self.MSP
             elif op == '00E0':
@@ -275,7 +290,6 @@ if __name__ == '__main__':
         name = 'BUBBLE2'
     else:
         name = sys.argv[1]
-    
     with open(name + '.drip') as file:
         test.load(file, name)
         test.run()

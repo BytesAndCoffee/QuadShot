@@ -1,0 +1,29 @@
+.data_                  ;
+  string>text="this will be overwritten";
+  literal>len=0020
+.exec_                  ;
+  %input%
+  %print%
+  MOV   BL,0000         ;
+  MOV   CH,len          ;
+  MOV   DL,0000         ;
+MAIN:                   ;
+  MOV   CL,text         ;
+  PUSHG CL              ;
+  CALL  INPUT           ;
+  POPG  BH              ;
+  MOV   CL,text         ;
+  ADD   CL,BH           ;
+STORE:                  ;
+  CMP   BH,0000         ;
+  JZ    PRNT            ;
+  POPG  AL              ;
+  MOV   [CL],AL         ;
+  DEC   CL              ;
+  DEC   BH              ;
+  JMP   STORE           ;
+PRNT:                   ;
+  MOV   CL,text         ;
+  PUSHG CL              ;
+  CALL  PRINT           ;
+  END                   ;

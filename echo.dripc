@@ -1,0 +1,9 @@
+{
+  "subs": [
+    "print",
+    "input"
+  ],
+  "switches": {
+    "mode": "save"
+  }
+}

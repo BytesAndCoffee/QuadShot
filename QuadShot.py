@@ -172,7 +172,6 @@ class CPU:
             self.SR = 8
 
     def push(self, stack, arg):
-        print(f'Pushing {arg} to {stack}')
         if stack == 'call':
             self.ram.put(Drip.tohex(self.CSP), arg)
             self.CSP -= 1
@@ -204,7 +203,6 @@ class CPU:
 
     def asm_in(self, op, arg):
         if op[3] == 'F':  # Register
-            print(self.stdin)
             self.registers[arg[0]] = self.stdin.pop(0)
         elif op[3] == 'E':  # RAM (Register)
             self.ram.put(self.registers[arg[0]], self.stdin.pop(0))
@@ -247,7 +245,6 @@ class CPU:
         while True:
             self.jumped = 0
             func, args, forward, op = self.fetch(hex(self.IP))
-            print(op, func, args)
             if func == 'HALT':
                 break
             elif op[2] == 'A':

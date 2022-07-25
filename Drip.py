@@ -188,7 +188,6 @@ def parse(lines):
 
 
 def mov(args):
-    print(args)
     if args[0] in registers:
         if len(args[1]) == 4 and args[1][1:-1] in registers:
             return '00D3', [registers[args[0]], registers[args[1][1:-1]]]
@@ -262,7 +261,6 @@ def find_jumps(program):
 
 
 def make_callable(program, calls):
-    print(calls)
     call = False
     out = []
     count = 0
@@ -275,7 +273,6 @@ def make_callable(program, calls):
             program[i] = out[-1]
             count += 1
             call = False
-    print(out)
     return program, out
 
 
@@ -328,6 +325,5 @@ def load(program, fname):
         memory.put(tohex(i), final[i])
     for address, call in enumerate(call_table):
         memory.put(tohex(base + address), call)
-        print(hex(base + address))
     memory.show()
     return memory, len(list(flatten(subs)))

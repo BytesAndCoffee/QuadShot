@@ -1,0 +1,23 @@
+.sub(INPUT):            ;
+  PUSH  AL              ; store contents of AL in private stack
+  PUSH  CL              ; store contents of CL in private stack
+  PUSH  CH              ; store contents of CH in private stack
+  POPG  CL              ; get max length of input to be read
+  MOV   CH,0000         ; set CH to 0
+CONT:                   ;
+  CMP   CL,0000         ; if CL is 0, then we are done
+  JZ    RETURN          ; if so, return
+  IN    AL              ; Read segment from stdin and store in AL
+  PUSHG AL              ; store contents of AL in global stack
+  CMP   AL,000A         ; If end of line,
+  JZ    RETURN          ; then return, otherwise
+  DEC   CL              ; decrement CL
+  INC   CH              ; increment CH
+  JMP   CONT            ; and go back to the top of the loop
+RETURN:                 ;
+  PUSHG CH              ; store contents of CH in global stack
+  POP   CH              ; restore contents of CH from private stack
+  POP   CL              ; restore contents of CL from private stack
+  POP   AL              ; restore contents of AL from private stack
+  RET   0001
+.endsub:                ;

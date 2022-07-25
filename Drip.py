@@ -19,19 +19,20 @@ table = {
         'DIV': ['00A3', '00B3'],
         'MOD': ['00A6', '00B6'],
         'XOR': ['00A7', '00B7']},
-    'INC': '00A4',
-    'DEC': '00A5',
-    'jumps': jumps,
-    'MOV': ['00D0', '00D1', '00D2', '00D3', '00D4'],
-    'CMP': ['00DC', '00DA', '00DB', '00DD'],
-    'PUSH': '00E0',
-    'POP': '00E1',
-    'PUSHG': '00EA',
-    'POPG': '00EB',
-    'OUT': ['00F0', '00F1', '00F2'],
-    'CALL': '0A00',
-    'RET': '0B00',
-    'SWP': '0C00'
+    'INC':        '00A4',
+    'DEC':        '00A5',
+    'jumps':      jumps,
+    'MOV':        ['00D0', '00D1', '00D2', '00D3', '00D4'],
+    'CMP':        ['00DC', '00DA', '00DB', '00DD'],
+    'PUSH':       '00E0',
+    'POP':        '00E1',
+    'PUSHG':      '00EA',
+    'POPG':       '00EB',
+    'OUT':        ['00F0', '00F1', '00F2'],
+    'IN':         ['00FF', '00FE', '00FD'],
+    'CALL':       '0A00',
+    'RET':        '0B00',
+    'SWP':        '0C00'
 }
 
 
@@ -152,6 +153,17 @@ def parse(lines):
                         args[0] = registers[args[0]]
                     else:
                         op = table[op][0]
+                elif op == 'IN':
+                    if args[0] in registers:
+                        op = table[op][0]
+                        args[0] = registers[args[0]]
+                    elif is_mem(args[0]):
+                        if args[0][1:-1] in registers:
+                            op = table[op][1]
+                            args[0] = registers[args[0][1:-1]]
+                        else:
+                            op = table[op][2]
+                            args[0] = args[0][1:-1]
                 elif op in ['CALL', 'RET']:
                     op, args = table[op], args
                 elif args[0] in registers:
@@ -176,6 +188,7 @@ def parse(lines):
 
 
 def mov(args):
+    print(args)
     if args[0] in registers:
         if len(args[1]) == 4 and args[1][1:-1] in registers:
             return '00D3', [registers[args[0]], registers[args[1][1:-1]]]
@@ -213,6 +226,7 @@ def twos_comp(val, bits):
 def find_subs(program: list):
     sub_found = False
     subs = {}
+    sub = []
     main = []
     name = ''
     for lineno in range(len(program)):
@@ -248,6 +262,7 @@ def find_jumps(program):
 
 
 def make_callable(program, calls):
+    print(calls)
     call = False
     out = []
     count = 0
@@ -257,9 +272,10 @@ def make_callable(program, calls):
             continue
         elif call:
             out.append(calls[program[i]])
-            program[i] = tohex(count)
+            program[i] = out[-1]
             count += 1
             call = False
+    print(out)
     return program, out
 
 
@@ -312,5 +328,6 @@ def load(program, fname):
         memory.put(tohex(i), final[i])
     for address, call in enumerate(call_table):
         memory.put(tohex(base + address), call)
+        print(hex(base + address))
     memory.show()
     return memory, len(list(flatten(subs)))

@@ -265,7 +265,7 @@ class CPU:
             elif op[1] == 'B':
                 self.IP = int(self.pop('call'), 16)
                 print('return branch')
-                self.MSP += 265
+                self.MSP += 256
                 self.PSP = self.MSP
             elif op == '00E0':
                 self.push('private', self.registers[args[0]])
